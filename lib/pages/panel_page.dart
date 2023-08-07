@@ -45,7 +45,9 @@ class _PanelPageState extends State<PanelPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     double fadeIn = 25;
+    // ignore: unused_local_variable
     double fadeOut = 25;
     stasutBarHeight = MediaQuery.of(context).viewPadding.top;
     navBarHeight = MediaQuery.of(context).padding.bottom;

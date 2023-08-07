@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:musicplayer_app/pages/home_page.dart';
 import 'package:musicplayer_app/pages/navigation_page.dart';
+
+import 'classes/music_player_class.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +24,10 @@ void main() async {
   } else {
     null;
   }
+
+  GetIt.I.registerSingleton<MusicPlayerClass>(MusicPlayerClass());
+
+  runApp(NewModularApp.get());
 }
 
 class NewModularApp {

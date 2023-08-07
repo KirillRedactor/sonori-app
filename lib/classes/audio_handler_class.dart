@@ -1,4 +1,4 @@
-// ======== Audio handler code part ============
+// ignore_for_file: unused_import
 
 import 'package:audio_service/audio_service.dart';
 import 'package:get_it/get_it.dart';

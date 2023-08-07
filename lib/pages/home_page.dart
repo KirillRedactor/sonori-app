@@ -113,15 +113,57 @@ class _HomePageState extends State<HomePage> {
               mISecond,
               mIThird,
               mIFirst,
-              mIFourth,
+              /*mIFourth,
               mISecond,
               mIThird,
               mIFirst,
               mISecond,
               mIThird,
               mIFourth,
-              mIFirst,
+              mIFirst,*/
             ], playQueue: true),
+          ),
+          StreamBuilder<MusicItem>(
+            stream: GetIt.I<MusicPlayerClass>().nextPlayingStream,
+            builder: (context, snapshot) {
+              return Text(snapshot.data?.mediaItem.title ?? "Null");
+            },
+          ),
+          StreamBuilder<MusicItem>(
+            stream: GetIt.I<MusicPlayerClass>().currentPlayingStream,
+            builder: (context, snapshot) {
+              return Text(snapshot.data?.mediaItem.title ?? "Null");
+            },
+          ),
+          StreamBuilder<MusicItem>(
+            stream: GetIt.I<MusicPlayerClass>().previousPlayingStream,
+            builder: (context, snapshot) {
+              return Text(snapshot.data?.mediaItem.title ?? "Null");
+            },
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => GetIt.I<MusicPlayerClass>().play(),
+                icon: Icon(Icons.play_arrow),
+              ),
+              IconButton(
+                onPressed: () => GetIt.I<MusicPlayerClass>().pause(),
+                icon: Icon(Icons.pause),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => GetIt.I<MusicPlayerClass>().seekToPrevious(),
+                icon: Icon(Icons.skip_previous),
+              ),
+              IconButton(
+                onPressed: () => GetIt.I<MusicPlayerClass>().seekToNext(),
+                icon: Icon(Icons.skip_next),
+              ),
+            ],
           ),
         ],
       ),

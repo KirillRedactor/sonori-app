@@ -8,6 +8,7 @@ import 'package:musicplayer_app/classes/audio_handler_class.dart';
 class MusicPlayerClass {
   final getIt = GetIt.I;
 
+  // ignore: unused_field
   AudioHandler _handler = EmptyAudioHandler();
 
   final _firstPlayer = AudioPlayer();
@@ -84,16 +85,27 @@ class MusicPlayerClass {
           _secondPlayerCurrentMusicItem != event) {
         _updateMediaItemFirstPlayer(event);
       } else if (_firstPlayerCurrentMusicItem == event) {
-        isPlaying ? _firstPlayer.play() : null;
+        if (isPlaying) {
+          _firstPlayer.play();
+          _secondPlayer.pause();
+        }
       } else if (_secondPlayerCurrentMusicItem == event) {
-        isPlaying ? _secondPlayer.play() : null;
+        if (isPlaying) {
+          _secondPlayer.play();
+          _firstPlayer.pause();
+        }
       }
     });
 
     nextPlayingStream.listen((event) {
-      if (_firstPlayerCurrentMusicItem != event &&
+      /*if (_firstPlayerCurrentMusicItem != event &&
           _secondPlayerCurrentMusicItem != event) {
         _updateMediaItemSecondPlayer(event);
+      } else*/
+      if (_firstPlayerCurrentMusicItem == _currentPlaying) {
+        _updateMediaItemSecondPlayer(event);
+      } else if (_secondPlayerCurrentMusicItem == _currentPlaying) {
+        _updateMediaItemFirstPlayer(event);
       }
     });
   }
@@ -104,18 +116,25 @@ class MusicPlayerClass {
     bool playQueue = true,
     bool isShuffle = false,
   }) async {
+    for (int i = 0; i < newQueue.length; i++) {
+      newQueue[i] = newQueue[i].copyWith(index: i);
+    }
     _queue = newQueue;
     _musicItemList = newQueue;
 
     if (fromItem > 0) {
       _previousPlayingStreamController.add(_musicItemList[fromItem - 1]);
     }
+    _updateMediaItemFirstPlayer(_musicItemList[fromItem]);
     _currentPlayingStreamController.add(_musicItemList[fromItem]);
+    _currentPlaying = _musicItemList[fromItem];
     if (fromItem != _musicItemList.length - 1) {
+      _updateMediaItemSecondPlayer(_musicItemList[fromItem + 1]);
       _nextPlayingStreamController.add(_musicItemList[fromItem + 1]);
     }
 
-    _playingStreamController.add(playQueue);
+    // _playingStreamController.add(playQueue);
+    playQueue ? play() : null;
   }
 
   Future<void> _updateMediaItemFirstPlayer(MusicItem musicItem) async {
@@ -131,6 +150,40 @@ class MusicPlayerClass {
       print("Error: $e");
     }
     return;
+  }
+
+  Future<void> play() async {
+    if (currentPlaying == MusicItem.empty) return;
+    _playingStreamController.add(true);
+    if (_firstPlayerCurrentMusicItem == _currentPlaying) {
+      _firstPlayer.play();
+    } else if (_secondPlayerCurrentMusicItem == _currentPlaying) {
+      _secondPlayer.play();
+    }
+  }
+
+  Future<void> pause() async {
+    _playingStreamController.add(false);
+    _firstPlayer.pause();
+    _secondPlayer.pause();
+  }
+
+  Future<void> seekToNext() async {
+    _previousPlayingStreamController.add(_currentPlaying);
+    _currentPlayingStreamController.add(_nextPlaying);
+    if (_nextPlaying.index != _musicItemList.length - 1) {
+      _nextPlayingStreamController
+          .add(_musicItemList[_nextPlaying.index ?? 0 + 1]);
+    }
+  }
+
+  Future<void> seekToPrevious() async {
+    _nextPlayingStreamController.add(_currentPlaying);
+    _currentPlayingStreamController.add(_previousPlaying);
+    if (_previousPlaying.index! > 0) {
+      _previousPlayingStreamController
+          .add(_musicItemList[_previousPlaying.index! - 1]);
+    }
   }
 
   Future<void> _updateMediaItemSecondPlayer(MusicItem musicItem) async {
@@ -150,13 +203,11 @@ class MusicPlayerClass {
 }
 
 class MusicItem {
-  double id;
+  int id;
   MediaItem mediaItem;
+  int? index;
 
-  MusicItem({
-    required this.id,
-    required this.mediaItem,
-  });
+  MusicItem({required this.id, required this.mediaItem, this.index});
 
   static final empty = MusicItem(
     id: 0,
@@ -165,6 +216,14 @@ class MusicItem {
       title: "Unknown track title",
     ),
   );
+
+  MusicItem copyWith({int? id, MediaItem? mediaItem, int? index}) {
+    return MusicItem(
+      id: id ?? this.id,
+      mediaItem: mediaItem ?? this.mediaItem,
+      index: index ?? this.index,
+    );
+  }
 }
 
 class DurationState {
