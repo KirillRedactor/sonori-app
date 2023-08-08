@@ -9,7 +9,7 @@ import "package:musicplayer_app/classes/music_player_class.dart";
 import 'dart:ui' as ui;
 
 MusicItem mIFirst = MusicItem(
-  id: 0,
+  id: 111111111,
   mediaItem: MediaItem(
     id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/t123456789.mp3?alt=media&token=9c9c9bc3-9e71-42e6-a266-f4d46395d8c7&_gl=1*f8ypit*_ga*MzMyNDEwNzEyLjE2ODUyMTAzNjI.*_ga_CW55HF8NVT*MTY4NTQ2MjMwOS4xLjEuMTY4NTQ2MjM4My4wLjAuMA..",
     title: "8 Legged Dreams",
@@ -21,7 +21,7 @@ MusicItem mIFirst = MusicItem(
 );
 
 MusicItem mISecond = MusicItem(
-  id: 0,
+  id: 111111112,
   mediaItem: MediaItem(
     id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.mp3?alt=media&token=809d7477-d13b-4487-829f-8f96df2abf06",
     title: "Stamp on the ground",
@@ -33,7 +33,7 @@ MusicItem mISecond = MusicItem(
 );
 
 MusicItem mIThird = MusicItem(
-  id: 0,
+  id: 111111113,
   mediaItem: MediaItem(
     id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Jim%20Yosef%2C%20Scarlett%20-%20Battlecry.mp3?alt=media&token=f8654e61-afd1-43eb-93ec-8dc3cc5aefec",
     title: "Battlecry (Heart of Courage)",
@@ -44,7 +44,7 @@ MusicItem mIThird = MusicItem(
   ),
 );
 MusicItem mIFourth = MusicItem(
-  id: 0,
+  id: 111111114,
   mediaItem: MediaItem(
     id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Throne%20(ft.%20Neoni)%20-%20Lost%20Identities%20Remix.mp3?alt=media&token=9c3e9879-7afa-4213-82dd-0ce8ba0952b3",
     title: "Throne(ft. Neoni) - Lost Identities Remix",
@@ -94,8 +94,9 @@ class _HomePageState extends State<HomePage> {
             //     const Offset(0, 20),
             //     const Offset(150, 20),
             //     <Color>[
-            //       Color.fromARGB(255, 202, 202, 202),
-            //       const Color.fromARGB(255, 255, 255, 255),
+            //       Color.fromARGB(255, 13, 181, 232),
+            //       // Color.fromARGB(255, 225, 13, 232),
+            //       Color.fromARGB(255, 192, 23, 23),
             //     ],
             //   ),
             color: Colors.white,
@@ -108,20 +109,23 @@ class _HomePageState extends State<HomePage> {
         children: [
           TextButton(
             child: Text("Play test playlist"),
-            onPressed: () => GetIt.I<MusicPlayerClass>().updateQueue([
-              mIFourth,
-              mISecond,
-              mIThird,
-              mIFirst,
-              /*mIFourth,
-              mISecond,
-              mIThird,
-              mIFirst,
-              mISecond,
-              mIThird,
-              mIFourth,
-              mIFirst,*/
-            ], playQueue: true),
+            onPressed: () => GetIt.I<MusicPlayerClass>().updateQueue(
+              [
+                mIFourth,
+                mISecond,
+                mIThird,
+                mIFirst,
+                mIFourth,
+                mISecond,
+                mIThird,
+                mIFirst,
+                mISecond,
+                mIThird,
+                mIFourth,
+                mIFirst,
+              ],
+              playQueue: true,
+            ),
           ),
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().nextPlayingStream,
