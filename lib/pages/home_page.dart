@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unused_import
 
 import "dart:async";
+import "dart:io";
 
 import "package:audio_service/audio_service.dart";
 import "package:flutter/material.dart";
@@ -130,34 +131,56 @@ class _HomePageState extends State<HomePage> {
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().nextPlayingStream,
             builder: (context, snapshot) {
-              return Text(snapshot.data?.mediaItem.title ?? "Null");
+              return Text(snapshot.data?.mediaItem.title ??
+                  MusicItem.empty.mediaItem.title);
             },
           ),
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().currentPlayingStream,
             builder: (context, snapshot) {
-              return Text(snapshot.data?.mediaItem.title ?? "Null");
+              return Text(snapshot.data?.mediaItem.title ??
+                  MusicItem.empty.mediaItem.title);
             },
           ),
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().previousPlayingStream,
             builder: (context, snapshot) {
-              return Text(snapshot.data?.mediaItem.title ?? "Null");
+              return Text(snapshot.data?.mediaItem.title ??
+                  MusicItem.empty.mediaItem.title);
             },
           ),
+          if (false)
+            // ignore: dead_code
+            Stack(
+              children: [
+                Container(
+                  color: Colors.grey.shade200,
+                  height: 14,
+                ),
+                ShaderMask(
+                  shaderCallback: (Rect rect) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: const [
+                        Colors.transparent,
+                        Colors.black,
+                        Colors.black,
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.25, 0.75, 1.0],
+                    ).createShader(rect);
+                  },
+                  blendMode: BlendMode.dstOut,
+                  child: Container(
+                    color: Colors.grey.shade300,
+                    height: 14,
+                  ),
+                ),
+              ],
+            ),
           Row(
-            children: [
-              IconButton(
-                onPressed: () => GetIt.I<MusicPlayerClass>().play(),
-                icon: Icon(Icons.play_arrow),
-              ),
-              IconButton(
-                onPressed: () => GetIt.I<MusicPlayerClass>().pause(),
-                icon: Icon(Icons.pause),
-              ),
-            ],
-          ),
-          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               IconButton(
                 onPressed: () => GetIt.I<MusicPlayerClass>().seekToPrevious(),

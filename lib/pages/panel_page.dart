@@ -1,3 +1,4 @@
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
@@ -67,6 +68,139 @@ class _PanelPageState extends State<PanelPage> {
               opacity: Tween(begin: 1.0, end: 0.0).animate(widget.ac),
               child: Container(
                 height: minHeight,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 50,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ShaderMask(
+                              shaderCallback: (Rect rect) {
+                                return LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: const [
+                                    Colors.black,
+                                    Colors.transparent,
+                                    Colors.transparent,
+                                    Colors.black
+                                  ],
+                                  stops: [
+                                    0.0,
+                                    controller.hasClients
+                                        ? fadeIn /
+                                            controller.position.extentInside
+                                        : 0.1,
+                                    controller.hasClients
+                                        ? 1 -
+                                            fadeOut /
+                                                controller.position.extentInside
+                                        : 0.1,
+                                    1.0
+                                  ], // 10% black, 80% transparent, 10% black
+                                ).createShader(rect);
+                              },
+                              blendMode: BlendMode.dstOut,
+                              // child: MiniTrackSliderWidget(
+                              //   controller: controller,
+                              // ),
+                            ),
+                          ),
+                          StreamBuilder<bool>(
+                              stream: GetIt.I<MusicPlayerClass>().playingStream,
+                              builder: (context, snapshot) {
+                                return TextButton(
+                                  onPressed: () {
+                                    if (snapshot.data ?? false) {
+                                      GetIt.I.get<MusicPlayerClass>().pause();
+                                    } else {
+                                      GetIt.I.get<MusicPlayerClass>().play();
+                                    }
+                                  },
+                                  child: Icon(
+                                    snapshot.data ?? false
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                    size: 30,
+                                    color: Colors.black,
+                                  ),
+                                );
+                              }),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2,
+                      child: IgnorePointer(
+                        ignoring: false,
+                        child: StreamBuilder<DurationState>(
+                          stream:
+                              GetIt.I<MusicPlayerClass>().durationStateStream,
+                          builder: (context, snapshot) {
+                            final durationState = snapshot.data;
+                            final progress =
+                                durationState?.progress ?? Duration.zero;
+                            final total = durationState?.total ?? Duration.zero;
+                            return ProgressBar(
+                              barHeight: 2,
+                              thumbColor: Colors.black,
+                              thumbRadius: 0,
+                              thumbGlowRadius: 0,
+                              progressBarColor: Colors.black.withOpacity(0.30),
+                              baseBarColor: Colors.black.withAlpha(30),
+                              progress: progress,
+                              total: total,
+                              timeLabelLocation: TimeLabelLocation.none,
+                              onSeek: (duration) {
+                                GetIt.I.get<MusicPlayerClass>().seek(duration);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 50,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () {},
+                              child: Icon(
+                                Icons.home_outlined,
+                                size: iconSize,
+                                color: iconColor,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () {},
+                              child: Icon(
+                                Icons.featured_play_list_outlined,
+                                size: iconSize,
+                                color: iconColor,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () {},
+                              child: Icon(
+                                Icons.person_outline,
+                                size: iconSize,
+                                color: iconColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

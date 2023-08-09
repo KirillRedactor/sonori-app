@@ -62,6 +62,21 @@ class MusicPlayerClass {
   DurationState _durationState = DurationState.zero;
   DurationState get durationState => _durationState;
 
+  // Duration variables
+  final StreamController<Duration> _durationStreamController =
+      StreamController<Duration>.broadcast();
+  Stream<Duration> get durationStream => _durationStreamController.stream;
+  Duration _duration = Duration.zero;
+  Duration get duration => _duration;
+
+  // Playback variables
+  final StreamController<PlaybackEvent> _playbackEventStreamController =
+      StreamController<PlaybackEvent>.broadcast();
+  Stream<PlaybackEvent> get playbackEventStream =>
+      _playbackEventStreamController.stream;
+
+  Duration smoothTransition = const Duration(seconds: 0);
+
   MusicPlayerClass() {
     init();
   }
@@ -74,12 +89,52 @@ class MusicPlayerClass {
     _handler = getIt<AudioHandler>();
 
     // Streams
-    currentPlayingStream.listen((event) => _currentPlaying = event);
+    currentPlayingStream.listen((event) {
+      _currentPlaying = event;
+      if (isPlaying) return;
+      if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
+        DurationState durationState = DurationState(
+            progress: _zerothPlayer.position,
+            buffered: _zerothPlayer.bufferedPosition,
+            total: _zerothPlayer.duration ?? Duration.zero);
+        _durationStateStreamController.add(durationState);
+      } else if (_firstPlayerCurrentMusicItem == _currentPlaying) {
+        DurationState durationState = DurationState(
+            progress: _firstPlayer.position,
+            buffered: _firstPlayer.bufferedPosition,
+            total: _firstPlayer.duration ?? Duration.zero);
+        _durationStateStreamController.add(durationState);
+      } else if (_secondPlayerCurrentMusicItem == _currentPlaying) {
+        DurationState durationState = DurationState(
+            progress: _secondPlayer.position,
+            buffered: _secondPlayer.bufferedPosition,
+            total: _secondPlayer.duration ?? Duration.zero);
+        _durationStateStreamController.add(durationState);
+      }
+    });
+
     previousPlayingStream.listen((event) => _previousPlaying = event);
     nextPlayingStream.listen((event) => _nextPlaying = event);
 
     playingStream.listen((event) => _isPlaying = event);
     durationStateStream.listen((event) => _durationState = event);
+    durationStream.listen((event) => _duration = event);
+
+    durationStateStream.listen((event) {
+      if (event.total == Duration.zero || smoothTransition == Duration.zero) {
+        return;
+      }
+
+      int time = event.total.inMilliseconds - event.progress.inMilliseconds;
+      if (time < smoothTransition.inMilliseconds &&
+          time >
+              smoothTransition.inMilliseconds -
+                  const Duration(seconds: 1).inMilliseconds) {
+        seekToNext(smooth: true);
+        print(
+            "Time: $time\n5 sec: ${const Duration(seconds: 5).inMilliseconds}");
+      }
+    });
 
     // End streams
 
@@ -98,6 +153,7 @@ class MusicPlayerClass {
           buffered: _zerothPlayer.bufferedPosition,
           total: event ?? Duration.zero);
       _durationStateStreamController.add(durationState);
+      _durationStreamController.add(durationState.total);
     });
 
     _firstPlayer.positionStream.listen((event) {
@@ -115,6 +171,7 @@ class MusicPlayerClass {
           buffered: _firstPlayer.bufferedPosition,
           total: event ?? Duration.zero);
       _durationStateStreamController.add(durationState);
+      _durationStreamController.add(durationState.total);
     });
 
     _secondPlayer.positionStream.listen((event) {
@@ -132,6 +189,23 @@ class MusicPlayerClass {
           buffered: _secondPlayer.bufferedPosition,
           total: event ?? Duration.zero);
       _durationStateStreamController.add(durationState);
+      _durationStreamController.add(durationState.total);
+    });
+
+    _zerothPlayer.playbackEventStream.listen((event) {
+      if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
+        _playbackEventStreamController.add(event);
+      }
+    });
+    _firstPlayer.playbackEventStream.listen((event) {
+      if (_firstPlayerCurrentMusicItem == _currentPlaying) {
+        _playbackEventStreamController.add(event);
+      }
+    });
+    _secondPlayer.playbackEventStream.listen((event) {
+      if (_secondPlayerCurrentMusicItem == _currentPlaying) {
+        _playbackEventStreamController.add(event);
+      }
     });
   }
 
@@ -148,36 +222,47 @@ class MusicPlayerClass {
     _musicItemList = newQueue;
 
     if (fromItem > 0) {
-      _previousPlayingStreamController.add(_musicItemList[fromItem - 1]);
+      _previousPlayingStreamController.add(_queue[fromItem - 1]);
     } else {
       _previousPlayingStreamController.add(MusicItem.empty);
     }
     _updateMediaItemZerothPlayer(
-        fromItem > 0 ? _musicItemList[fromItem - 1] : MusicItem.empty);
+        fromItem > 0 ? _queue[fromItem - 1] : MusicItem.empty);
 
-    _currentPlayingStreamController.add(_musicItemList[fromItem]);
-    _currentPlaying = _musicItemList[fromItem];
-    _updateMediaItemFirstPlayer(_musicItemList[fromItem]);
+    _currentPlayingStreamController.add(_queue[fromItem]);
+    _currentPlaying = _queue[fromItem];
+    _updateMediaItemFirstPlayer(_queue[fromItem]);
 
-    if (fromItem != _musicItemList.length - 1) {
-      _updateMediaItemSecondPlayer(_musicItemList[fromItem + 1]);
-      _nextPlayingStreamController.add(_musicItemList[fromItem + 1]);
+    if (fromItem != _queue.length - 1) {
+      _updateMediaItemSecondPlayer(_queue[fromItem + 1]);
+      _nextPlayingStreamController.add(_queue[fromItem + 1]);
     }
 
     // _playingStreamController.add(playQueue);
     playQueue ? play() : null;
   }
 
-  Future<void> play() async {
+  Future<void> play({bool smooth = false}) async {
     if (currentPlaying == MusicItem.empty) return;
-    !_isPlaying ? _playingStreamController.add(true) : null;
+    _playingStreamController.add(true);
     if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
-      print("Hello zeroth play func");
       _zerothPlayer.play();
+      if (smooth) {
+        _smoothVolumeReductionZerothPlayer(
+            invert: true, duration: smoothTransition);
+      }
     } else if (_firstPlayerCurrentMusicItem == _currentPlaying) {
       _firstPlayer.play();
+      if (smooth) {
+        _smoothVolumeReductionFirstPlayer(
+            invert: true, duration: smoothTransition);
+      }
     } else if (_secondPlayerCurrentMusicItem == _currentPlaying) {
       _secondPlayer.play();
+      if (smooth) {
+        _smoothVolumeReductionSecondPlayer(
+            invert: true, duration: smoothTransition);
+      }
     }
   }
 
@@ -188,12 +273,49 @@ class MusicPlayerClass {
     _secondPlayer.pause();
   }
 
-  Future<void> seekToNext() async {
-    if (_currentPlaying.index == _musicItemList.length - 1) return;
-    _zerothPlayer.pause();
-    _firstPlayer.pause();
-    _secondPlayer.pause();
-    _seekAllToZero();
+  Future<void> stop() async {
+    return; // TODO Make this function (maybe)
+    // ignore: dead_code
+    _zerothPlayer.stop();
+    _firstPlayer.stop();
+    _secondPlayer.stop();
+  }
+
+  // Future<void> seekTo(Duration duration) async => seek(duration);
+
+  Future<void> seek(Duration duration) async {
+    if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
+      _zerothPlayer.seek(duration);
+    } else if (_firstPlayerCurrentMusicItem == _currentPlaying) {
+      _firstPlayer.seek(duration);
+    } else if (_secondPlayerCurrentMusicItem == _currentPlaying) {
+      _secondPlayer.seek(duration);
+    }
+  }
+
+  Future<void> seekToNext({bool smooth = false}) async {
+    if (_currentPlaying.index == _queue.length - 1) return;
+
+    if (smooth) {
+      if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
+        _firstPlayer.pause();
+        _secondPlayer.pause();
+        _smoothVolumeReductionZerothPlayer(duration: smoothTransition);
+      } else if (_firstPlayerCurrentMusicItem == _currentPlaying) {
+        _zerothPlayer.pause();
+        _secondPlayer.pause();
+        _smoothVolumeReductionFirstPlayer(duration: smoothTransition);
+      } else if (_secondPlayerCurrentMusicItem == _currentPlaying) {
+        _zerothPlayer.pause();
+        _firstPlayer.pause();
+        _smoothVolumeReductionSecondPlayer(duration: smoothTransition);
+      }
+    } else {
+      _zerothPlayer.pause();
+      _firstPlayer.pause();
+      _secondPlayer.pause();
+      _seekAllToZero();
+    }
 
     Player needToUpdate = Player.unknown;
     List<MusicItem> filter = [_previousPlaying, MusicItem.empty];
@@ -208,20 +330,20 @@ class MusicPlayerClass {
     _previousPlaying = _currentPlaying;
     _currentPlayingStreamController.add(_nextPlaying);
     _currentPlaying = _nextPlaying;
-    if (_currentPlaying.index != _musicItemList.length - 1) {
-      _nextPlayingStreamController.add(_musicItemList[_nextPlaying.index! + 1]);
-      _nextPlaying = _musicItemList[_nextPlaying.index! + 1];
+    if (_currentPlaying.index != _queue.length - 1) {
+      _nextPlayingStreamController.add(_queue[_nextPlaying.index! + 1]);
+      _nextPlaying = _queue[_nextPlaying.index! + 1];
     } else {
       _nextPlayingStreamController.add(MusicItem.empty);
       _nextPlaying = MusicItem.empty;
     }
-    if (_currentPlaying.index != _musicItemList.length - 1) {
+    if (_currentPlaying.index != _queue.length - 1) {
       if (needToUpdate == Player.zeroth) {
-        _updateMediaItemZerothPlayer(_musicItemList[_nextPlaying.index!]);
+        _updateMediaItemZerothPlayer(_queue[_nextPlaying.index!]);
       } else if (needToUpdate == Player.first) {
-        _updateMediaItemFirstPlayer(_musicItemList[_nextPlaying.index!]);
+        _updateMediaItemFirstPlayer(_queue[_nextPlaying.index!]);
       } else if (needToUpdate == Player.second) {
-        _updateMediaItemSecondPlayer(_musicItemList[_nextPlaying.index!]);
+        _updateMediaItemSecondPlayer(_queue[_nextPlaying.index!]);
       }
     } else {
       if (needToUpdate == Player.zeroth) {
@@ -233,7 +355,79 @@ class MusicPlayerClass {
       }
     }
 
-    play();
+    isPlaying ? play(smooth: smooth) : null;
+  }
+
+  Future<void> _smoothVolumeReductionZerothPlayer({
+    bool invert = false,
+    Duration duration = Duration.zero,
+  }) async {
+    double startVolume = invert ? 0 : _zerothPlayer.volume;
+    double endVolume = invert ? _zerothPlayer.volume : 0;
+
+    double currentVolume = invert ? startVolume : startVolume - endVolume;
+
+    int count = duration.inMilliseconds ~/ 50;
+    int timeStep = duration.inMilliseconds ~/ count;
+    double step = invert ? endVolume / count : currentVolume / count;
+
+    for (int i = 0; i < count; i++) {
+      invert ? currentVolume += step : currentVolume -= step;
+      _zerothPlayer.setVolume(currentVolume);
+      await Future.delayed(Duration(milliseconds: timeStep));
+    }
+
+    invert ? null : _zerothPlayer.pause();
+    invert ? null : _zerothPlayer.seek(Duration.zero);
+    _zerothPlayer.setVolume(invert ? endVolume : startVolume);
+  }
+
+  Future<void> _smoothVolumeReductionFirstPlayer({
+    bool invert = false,
+    Duration duration = Duration.zero,
+  }) async {
+    double startVolume = invert ? 0 : _firstPlayer.volume;
+    double endVolume = invert ? _firstPlayer.volume : 0;
+
+    double currentVolume = invert ? startVolume : startVolume - endVolume;
+
+    int count = duration.inMilliseconds ~/ 50;
+    int timeStep = duration.inMilliseconds ~/ count;
+    double step = invert ? endVolume / count : currentVolume / count;
+
+    for (int i = 0; i < count; i++) {
+      invert ? currentVolume += step : currentVolume -= step;
+      _firstPlayer.setVolume(currentVolume);
+      await Future.delayed(Duration(milliseconds: timeStep));
+    }
+
+    invert ? null : _firstPlayer.pause();
+    invert ? null : _firstPlayer.seek(Duration.zero);
+    _firstPlayer.setVolume(invert ? endVolume : startVolume);
+  }
+
+  Future<void> _smoothVolumeReductionSecondPlayer({
+    bool invert = false,
+    Duration duration = Duration.zero,
+  }) async {
+    double startVolume = invert ? 0 : _secondPlayer.volume;
+    double endVolume = invert ? _secondPlayer.volume : 0;
+
+    double currentVolume = invert ? startVolume : startVolume - endVolume;
+
+    int count = duration.inMilliseconds ~/ 50;
+    int timeStep = duration.inMilliseconds ~/ count;
+    double step = invert ? endVolume / count : currentVolume / count;
+
+    for (int i = 0; i < count; i++) {
+      invert ? currentVolume += step : currentVolume -= step;
+      _secondPlayer.setVolume(currentVolume);
+      await Future.delayed(Duration(milliseconds: timeStep));
+    }
+
+    invert ? null : _secondPlayer.pause();
+    invert ? null : _secondPlayer.seek(Duration.zero);
+    _secondPlayer.setVolume(invert ? endVolume : startVolume);
   }
 
   Future<void> seekToPrevious() async {
@@ -260,9 +454,8 @@ class MusicPlayerClass {
     _currentPlaying = _previousPlaying;
 
     if (_currentPlaying.index != 0) {
-      _previousPlayingStreamController
-          .add(_musicItemList[_currentPlaying.index! - 1]);
-      _previousPlaying == _musicItemList[_currentPlaying.index! - 1];
+      _previousPlayingStreamController.add(_queue[_currentPlaying.index! - 1]);
+      _previousPlaying == _queue[_currentPlaying.index! - 1];
     } else {
       _previousPlayingStreamController.add(MusicItem.empty);
       _previousPlaying == MusicItem.empty;
@@ -270,13 +463,11 @@ class MusicPlayerClass {
 
     if (_currentPlaying.index != 0) {
       if (needToUpdate == Player.zeroth) {
-        _updateMediaItemZerothPlayer(
-            _musicItemList[_currentPlaying.index! - 1]);
+        _updateMediaItemZerothPlayer(_queue[_currentPlaying.index! - 1]);
       } else if (needToUpdate == Player.first) {
-        _updateMediaItemFirstPlayer(_musicItemList[_currentPlaying.index! - 1]);
+        _updateMediaItemFirstPlayer(_queue[_currentPlaying.index! - 1]);
       } else if (needToUpdate == Player.second) {
-        _updateMediaItemSecondPlayer(
-            _musicItemList[_currentPlaying.index! - 1]);
+        _updateMediaItemSecondPlayer(_queue[_currentPlaying.index! - 1]);
       }
     } else {
       if (needToUpdate == Player.zeroth) {
@@ -288,7 +479,7 @@ class MusicPlayerClass {
       }
     }
 
-    play();
+    isPlaying ? play() : null;
   }
 
   Future<void> _seekAllToZero() async {

@@ -46,6 +46,7 @@ dependencies:
   audio_video_progress_bar: ^1.0.1
   audio_session: ^0.1.16
   cached_network_image: ^3.2.3
+  on_audio_query: ^2.9.0
 
 dev_dependencies:
   flutter_test:
@@ -70,8 +71,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/
+  # assets:
+  #   - assets/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

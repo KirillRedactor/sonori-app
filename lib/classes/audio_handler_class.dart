@@ -2,6 +2,7 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/music_player_class.dart';
 
 /// Инициализация [AudioHandler]
@@ -19,22 +20,45 @@ Future<AudioHandler> initAudioService() async {
 }
 
 class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
+  MediaItem _mediaItem = MusicItem.empty.mediaItem;
+
   MyAudioHandler() {
-    // playMediaItem(MediaItem(
-    //   id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/t123456789.mp3?alt=media&token=9c9c9bc3-9e71-42e6-a266-f4d46395d8c7&_gl=1*f8ypit*_ga*MzMyNDEwNzEyLjE2ODUyMTAzNjI.*_ga_CW55HF8NVT*MTY4NTQ2MjMwOS4xLjEuMTY4NTQ2MjM4My4wLjAuMA..",
-    //   title: "8 Legged Dreams",
-    //   artist: "Unlike Pluto",
-    //   album: "No album",
-    //   duration: const Duration(minutes: 4),
-    //   artUri: Uri.parse(
-    //       "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/243b9e26190d947bfc046b6360446b2b.1000x1000x1.jpg?alt=media&token=7b901867-934c-4030-a05a-40d878916459"),
-    // ));
-    // _notifyAudioHandlerAboutPlaybackEvents();
-    // _notifyCurrentMusicItemPlaybackEvent();
-    // _setNotificationButtons();
+    // _initAudioPlayback();
+
+    _notifyAudioHandlerAboutPlaybackEvents();
+
+    GetIt.I<MusicPlayerClass>().currentPlayingStream.listen((event) {
+      playMediaItem(event.mediaItem.copyWith(
+          duration: GetIt.I.get<MusicPlayerClass>().durationState.total));
+    });
   }
 
-  /*@override
+  Future<void> _initStreams() async {
+    GetIt.I<MusicPlayerClass>().playingStream.listen((event) {
+      print(event ? "MediaControl.pause" : "MediaControl.play");
+      event = GetIt.I<MusicPlayerClass>().isPlaying;
+      playbackState.add(playbackState.value.copyWith(
+        playing: event,
+        controls: [
+          MediaControl.stop,
+          MediaControl.skipToPrevious,
+          if (event) MediaControl.pause else MediaControl.play,
+          MediaControl.skipToNext,
+        ],
+      ));
+    });
+
+    // GetIt.I<MusicPlayerClass>().durationStateStream.listen((event) {
+    //   playMediaItem(_mediaItem.copyWith(duration: event.total));
+    // });
+
+    GetIt.I<MusicPlayerClass>().currentPlayingStream.listen((event) {
+      playMediaItem(event.mediaItem.copyWith(
+          duration: GetIt.I.get<MusicPlayerClass>().durationState.total));
+    });
+  }
+
+  @override
   Future<void> play() async {
     GetIt.I.get<MusicPlayerClass>().play();
   }
@@ -51,7 +75,7 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> seek(Duration position) async {
-    GetIt.I.get<MusicPlayerClass>().seekTo(position);
+    GetIt.I.get<MusicPlayerClass>().seek(position);
   }
 
   @override
@@ -65,10 +89,15 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   @override
-  // ignore: avoid_renaming_method_parameters
-  Future<void> playMediaItem(MediaItem newMediaItem) {
-    mediaItem.add(newMediaItem);
-    return super.playMediaItem(newMediaItem);
+  Future<void> setRating(Rating rating, [Map<String, dynamic>? extras]) async {
+    print(rating);
+  }
+
+  @override
+  Future<void> playMediaItem(MediaItem mediaItem) async {
+    _mediaItem = mediaItem;
+    this.mediaItem.add(mediaItem);
+    // return super.playMediaItem(mediaItem);
   }
 
   /*void _setNotificationButtons() {
@@ -90,25 +119,44 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     ));
   }*/
 
-  void _notifyCurrentMusicItemPlaybackEvent() {
+  /*void _notifyCurrentMusicItemPlaybackEvent() {
     GetIt.I
         .get<MusicPlayerClass>()
         .currentPlayingMediaItemStream
         .listen((event) {
       mediaItem.add(event);
     });
-  }
+  }*/
+
+  @override
+  Future<void> fastForward() async {}
+
+  @override
+  Future<void> rewind() async {}
 
   void _notifyAudioHandlerAboutPlaybackEvents() {
-    final _firstPlayer = GetIt.I.get<MusicPlayerClass>().firstPlayer;
-    _firstPlayer.playbackEventStream.listen((PlaybackEvent event) {
-      final playing = _firstPlayer.playing;
+    GetIt.I
+        .get<MusicPlayerClass>()
+        .playbackEventStream
+        .listen((PlaybackEvent event) {
+      playMediaItem(_mediaItem.copyWith(
+          duration: GetIt.I.get<MusicPlayerClass>().durationState.total));
+      final playing = GetIt.I.get<MusicPlayerClass>().isPlaying;
       playbackState.add(playbackState.value.copyWith(
         controls: [
-          MediaControl.stop,
+          const MediaControl(
+            androidIcon: 'drawable/audio_service_stop',
+            label: 'Unlike',
+            action: MediaAction.rewind,
+          ),
           MediaControl.skipToPrevious,
-          if (_firstPlayer.playing) MediaControl.pause else MediaControl.play,
+          if (playing) MediaControl.pause else MediaControl.play,
           MediaControl.skipToNext,
+          const MediaControl(
+            androidIcon: 'drawable/audio_service_stop',
+            label: 'Like',
+            action: MediaAction.fastForward,
+          ),
         ],
         systemActions: {
           MediaAction.seek,
@@ -120,24 +168,39 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
           ProcessingState.buffering: AudioProcessingState.buffering,
           ProcessingState.ready: AudioProcessingState.ready,
           ProcessingState.completed: AudioProcessingState.completed,
-        }[_firstPlayer.processingState]!,
-        repeatMode: const {
-          LoopMode.off: AudioServiceRepeatMode.none,
-          LoopMode.one: AudioServiceRepeatMode.one,
-          LoopMode.all: AudioServiceRepeatMode.all,
-        }[_firstPlayer.loopMode]!,
-        shuffleMode: (_firstPlayer.shuffleModeEnabled)
-            ? AudioServiceShuffleMode.all
-            : AudioServiceShuffleMode.none,
+        }[event.processingState]!,
         playing: playing,
-        updatePosition: _firstPlayer.position,
-        bufferedPosition: _firstPlayer.bufferedPosition,
-        speed: _firstPlayer.speed,
+        updatePosition: GetIt.I.get<MusicPlayerClass>().durationState.progress,
+        bufferedPosition: event.bufferedPosition,
+        speed: 1,
         queueIndex: event.currentIndex,
       ));
     });
+  }
 
-    _firstPlayer.durationStream.listen((duration) {
+  void _initAudioPlayback() {
+    playMediaItem(GetIt.I<MusicPlayerClass>().currentPlaying.mediaItem);
+
+    bool playing = GetIt.I<MusicPlayerClass>().isPlaying;
+    DurationState durationState = GetIt.I<MusicPlayerClass>().durationState;
+    playbackState.add(playbackState.value.copyWith(
+      controls: [
+        MediaControl.stop,
+        MediaControl.skipToPrevious,
+        playing ? MediaControl.pause : MediaControl.play,
+        MediaControl.skipToNext,
+      ],
+      systemActions: {
+        MediaAction.seek,
+      },
+      androidCompactActionIndices: [1, 2, 3],
+      playing: playing,
+      updatePosition: durationState.progress,
+      bufferedPosition: durationState.buffered,
+      speed: 1,
+    ));
+
+    /*_firstPlayer.durationStream.listen((duration) {
       var index = _firstPlayer.currentIndex;
       final newQueue = queue.value;
       if (index == null || newQueue.isEmpty) return;
@@ -149,6 +212,6 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       newQueue[index] = newMediaItem;
       queue.add(newQueue);
       mediaItem.add(newMediaItem);
-    });
-  }*/
+    });*/
+  }
 }
