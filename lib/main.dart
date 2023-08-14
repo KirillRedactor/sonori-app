@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:musicplayer_app/pages/home_page.dart';
 import 'package:musicplayer_app/pages/navigation_page.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 import 'classes/music_player_class.dart';
 
@@ -25,6 +26,7 @@ void main() async {
     null;
   }
 
+  setPathUrlStrategy();
   GetIt.I.registerSingleton<MusicPlayerClass>(MusicPlayerClass());
 
   runApp(NewModularApp.get());
