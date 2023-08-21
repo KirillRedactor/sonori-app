@@ -58,6 +58,7 @@ class _MyWidgetState extends State<MyWidget> {
         primarySwatch: Colors.indigo,
         // useMaterial3: true,
         textTheme: GoogleFonts.ralewayTextTheme(),
+        // textTheme: GoogleFonts.silkscreenTextTheme(), //* pixels
         // textTheme: GoogleFonts.robotoTextTheme(),
       ),
       routerConfig: Modular.routerConfig,

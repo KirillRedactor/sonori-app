@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 // ignore: unused_import
 import 'dart:ui' as ui;
 
-import 'music_player_class.dart';
+import '../classes/music_player_class.dart';
 
 const _defoultArtUrl =
     "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/exontix-music-white.png?alt=media&token=fd38d7b8-1eb7-4351-8883-97adc9ae13cf&_gl=1*1t7po8d*_ga*MzMyNDEwNzEyLjE2ODUyMTAzNjI.*_ga_CW55HF8NVT*MTY4NTQ2MjMwOS4xLjEuMTY4NTQ2Mjg5OS4wLjAuMA..";
@@ -80,65 +80,61 @@ class _MiniTrackCardForNavigationPanelState
 }
 
 class TrackCard extends StatefulWidget {
-  final MusicItem mediaItem;
+  final MusicItem musicItem;
 
-  const TrackCard({super.key, required this.mediaItem});
+  const TrackCard({super.key, required this.musicItem});
 
   @override
   State<TrackCard> createState() => _TrackCardState();
 }
 
 class _TrackCardState extends State<TrackCard> {
-  double blurAmount = 8;
+  final double blurAmount = 8;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 40,
-        vertical: 20,
-      ),
-      child: FlatBox(
-        padding: EdgeInsets.zero,
-        // height: 200,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: CachedNetworkImage(
-                  imageUrl: widget.mediaItem.mediaItem.artUri.toString(),
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey.shade400,
-                  ),
-                  errorWidget: (context, url, error) => errorImage,
+    double width = MediaQuery.of(context).size.width;
+    return SizedBox(
+      // color: Colors.grey[200],
+      height: width * 0.95,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                fit: BoxFit.scaleDown,
+                imageUrl: widget.musicItem.mediaItem.artUri.toString(),
+                placeholder: (context, url) => Container(
+                  color: Colors.grey.shade400,
                 ),
+                errorWidget: (context, url, error) => errorImage,
               ),
             ),
-            MarqueeWidget(
-              child: Text(
-                widget.mediaItem.mediaItem.title,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  decoration: TextDecoration.none,
-                ),
+          ),
+          MarqueeWidget(
+            child: Text(
+              widget.musicItem.mediaItem.title,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                decoration: TextDecoration.none,
               ),
             ),
-            MarqueeWidget(
-              child: Text(
-                widget.mediaItem.mediaItem.artist ?? "Unknown artist",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  decoration: TextDecoration.none,
-                ),
+          ),
+          MarqueeWidget(
+            child: Text(
+              widget.musicItem.mediaItem.artist ?? "Unknown artist",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+                decoration: TextDecoration.none,
               ),
             ),
-            SizedBox(height: 8),
-          ],
-        ),
+          ),
+          SizedBox(height: 10),
+        ],
       ),
     );
   }
@@ -167,6 +163,33 @@ class _TrackCardState extends State<TrackCard> {
 // ==============================================================================================================================================
 // ==============================================================================================================================================
 // ==============================================================================================================================================
+
+class ImageWidget extends StatelessWidget {
+  final MusicItem musicItem;
+  final double? borderRadius;
+
+  const ImageWidget({super.key, required this.musicItem, this.borderRadius});
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    return SizedBox(
+      height: width * 0.8,
+      width: width * 0.8,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius ?? 0),
+        child: CachedNetworkImage(
+          fit: BoxFit.contain,
+          imageUrl: musicItem.mediaItem.artUri.toString(),
+          placeholder: (context, url) => Container(
+            color: Colors.grey.shade400,
+          ),
+          errorWidget: (context, url, error) => errorImage,
+        ),
+      ),
+    );
+  }
+}
 
 class NeuBox extends StatelessWidget {
   final Widget child;

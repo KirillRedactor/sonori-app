@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/audio_handler_class.dart';
 
+MusicPlayerClass get mpc => GetIt.I<MusicPlayerClass>();
+
 class MusicPlayerClass {
   final getIt = GetIt.I;
 
@@ -436,6 +438,8 @@ class MusicPlayerClass {
 
     isPlaying ? play() : null;
   }
+
+  Future<void> setShuffleModeEnabled(bool enabled) async {}
 
   Future<void> setLoopMode(LoopMode loopMode) async {
     _loopModeSteamController.add(loopMode);

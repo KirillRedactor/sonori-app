@@ -1,12 +1,26 @@
 // ignore_for_file: unused_import
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/music_player_class.dart';
 
 /// Инициализация [AudioHandler]
 Future<AudioHandler> initAudioService() async {
+  ///Session part
+  final session = await AudioSession.instance;
+  await session.configure(
+    const AudioSessionConfiguration.music().copyWith(
+      androidWillPauseWhenDucked: true,
+    ),
+  );
+  session.interruptionEventStream.listen((event) {
+    if (event.type == AudioInterruptionType.unknown) {
+      mpc.pause();
+    }
+  });
+
   return await AudioService.init(
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
@@ -33,9 +47,10 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     });
   }
 
+  // ignore: unused_element
   Future<void> _initStreams() async {
     GetIt.I<MusicPlayerClass>().playingStream.listen((event) {
-      print(event ? "MediaControl.pause" : "MediaControl.play");
+      // print(event ? "MediaControl.pause" : "MediaControl.play");
       event = GetIt.I<MusicPlayerClass>().isPlaying;
       playbackState.add(playbackState.value.copyWith(
         playing: event,
@@ -144,19 +159,19 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       final playing = GetIt.I.get<MusicPlayerClass>().isPlaying;
       playbackState.add(playbackState.value.copyWith(
         controls: [
-          const MediaControl(
+          /*const MediaControl(
             androidIcon: 'drawable/audio_service_stop',
             label: 'Unlike',
             action: MediaAction.rewind,
-          ),
+          ),*/
           MediaControl.skipToPrevious,
           if (playing) MediaControl.pause else MediaControl.play,
           MediaControl.skipToNext,
-          const MediaControl(
+          /*const MediaControl(
             androidIcon: 'drawable/audio_service_stop',
             label: 'Like',
             action: MediaAction.fastForward,
-          ),
+          ),*/
         ],
         systemActions: {
           MediaAction.seek,
