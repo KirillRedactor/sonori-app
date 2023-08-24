@@ -72,11 +72,11 @@ class _PanelPageState extends State<PanelPage> {
             onTap: () => widget.panelController.open(),
             child: FadeTransition(
               opacity: Tween(begin: 1.0, end: 0.0).animate(widget.ac),
-              child: Container(
+              child: SizedBox(
                 height: minHeight,
                 child: Column(
                   children: [
-                    Container(
+                    SizedBox(
                       height: 50,
                       child: Row(
                         children: [
@@ -112,32 +112,34 @@ class _PanelPageState extends State<PanelPage> {
                               // child: MiniTrackSliderWidget(
                               //   controller: controller,
                               // ),
-                              child: const MiniTrackWidgetWithTransition(),
+                              // child: const MiniTrackWidgetWithTransition(),
+                              child: const MiniTrackWidget(),
                             ),
                           ),
                           StreamBuilder<bool>(
-                              stream: GetIt.I<MusicPlayerClass>().playingStream,
-                              builder: (context, snapshot) {
-                                return TextButton(
-                                  onPressed: () {
-                                    if (snapshot.data ?? false) {
-                                      GetIt.I.get<MusicPlayerClass>().pause();
-                                    } else {
-                                      GetIt.I.get<MusicPlayerClass>().play();
-                                    }
-                                  },
-                                  style: TextButton.styleFrom(
-                                    shape: const CircleBorder(),
-                                  ),
-                                  child: Icon(
-                                    snapshot.data ?? false
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
-                                    size: 30,
-                                    color: Colors.black,
-                                  ),
-                                );
-                              }),
+                            stream: GetIt.I<MusicPlayerClass>().playingStream,
+                            builder: (context, snapshot) {
+                              return TextButton(
+                                onPressed: () {
+                                  if (snapshot.data ?? false) {
+                                    GetIt.I.get<MusicPlayerClass>().pause();
+                                  } else {
+                                    GetIt.I.get<MusicPlayerClass>().play();
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Icon(
+                                  snapshot.data ?? false
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  size: 30,
+                                  color: Colors.black,
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -164,14 +166,14 @@ class _PanelPageState extends State<PanelPage> {
                               total: total,
                               timeLabelLocation: TimeLabelLocation.none,
                               onSeek: (duration) {
-                                GetIt.I.get<MusicPlayerClass>().seek(duration);
+                                mpc.seek(duration);
                               },
                             );
                           },
                         ),
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       height: 50,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -296,7 +298,7 @@ class PanelPartWidget extends StatelessWidget {
                 );
               },
             ),*/
-            StreamBuilder<MusicItem>(
+            /*StreamBuilder<MusicItem>(
               stream: mpc.currentPlayingStream,
               builder: (context, snapshot) {
                 return ImageWidget(
@@ -304,7 +306,8 @@ class PanelPartWidget extends StatelessWidget {
                   borderRadius: 10,
                 );
               },
-            ),
+            ),*/
+            const TrackWidget(),
             StreamBuilder<MusicItem>(
               stream: mpc.currentPlayingStream,
               builder: (context, snapshot) {
@@ -360,7 +363,7 @@ class PanelPartWidget extends StatelessWidget {
                   // bufferedBarColor: Colors.grey[500],
                   total: total,
                   onSeek: (duration) {
-                    GetIt.I.get<MusicPlayerClass>().seek(duration);
+                    mpc.seek(duration);
                   },
                 );
               },
@@ -376,8 +379,7 @@ class PanelPartWidget extends StatelessWidget {
                   ),
                 ),
                 RoundIconButton(
-                  onPressed: () =>
-                      GetIt.I.get<MusicPlayerClass>().seekToPrevious(),
+                  onPressed: () => mpc.seekToPrevious(),
                   icon: Icons.skip_previous,
                   size: 45,
                 ),
@@ -387,9 +389,9 @@ class PanelPartWidget extends StatelessWidget {
                       return RoundIconButton(
                         onPressed: () {
                           if (snapshot.data ?? false) {
-                            GetIt.I.get<MusicPlayerClass>().pause();
+                            mpc.pause();
                           } else {
-                            GetIt.I.get<MusicPlayerClass>().play();
+                            mpc.play();
                           }
                         },
                         icon: snapshot.data ?? false
@@ -451,18 +453,24 @@ class PanelPartWidget extends StatelessWidget {
                         ),
                       );
                     }),
-                TextButton(
-                  onPressed: () {
-                    getIt<MusicPlayerClass>().setShuffleModeEnabled(true);
+                StreamBuilder<bool>(
+                  stream: mpc.shuffleModeEnabledSteam,
+                  builder: (context, snapshot) {
+                    return TextButton(
+                      onPressed: () {
+                        getIt<MusicPlayerClass>()
+                            .setShuffleModeEnabled(!(snapshot.data ?? false));
+                      },
+                      style: TextButton.styleFrom(
+                        shape: const CircleBorder(),
+                      ),
+                      child: Icon(Icons.shuffle,
+                          size: 30,
+                          color: snapshot.data == true
+                              ? Colors.black
+                              : Colors.grey),
+                    );
                   },
-                  style: TextButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(
-                    Icons.shuffle,
-                    size: 30,
-                    color: Colors.grey,
-                  ),
                 ),
               ],
             ),
@@ -473,20 +481,17 @@ class PanelPartWidget extends StatelessWidget {
   }
 }
 
-class MiniTrackWidgetWithTransition extends StatefulWidget {
-  const MiniTrackWidgetWithTransition({super.key});
+class MiniTrackWidget extends StatefulWidget {
+  const MiniTrackWidget({super.key});
 
   @override
-  State<MiniTrackWidgetWithTransition> createState() =>
-      _MiniTrackWidgetWithTransitionState();
+  State<MiniTrackWidget> createState() => _MiniTrackWidgetState();
 }
 
-class _MiniTrackWidgetWithTransitionState
-    extends State<MiniTrackWidgetWithTransition> with TickerProviderStateMixin {
-  late AnimationController _ac;
-  Offset _offset = Offset.zero;
-  double width = 0;
-  double _value = 0;
+class _MiniTrackWidgetState extends State<MiniTrackWidget> {
+  MusicItemsState _musicItemsState = MusicItemsState.empty;
+  PageController pageController = PageController();
+  int currentPage = 0;
 
   MusicItem previousPlaying = MusicItem.empty;
   MusicItem currentPlaying = MusicItem.empty;
@@ -494,116 +499,105 @@ class _MiniTrackWidgetWithTransitionState
 
   @override
   void initState() {
-    _ac = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-      value: 0,
-    );
-
-    GetIt.I
-        .get<MusicPlayerClass>()
-        .previousPlayingStream
-        .listen((event) => previousPlaying = event);
-    GetIt.I.get<MusicPlayerClass>().currentPlayingStream.listen(
+    mpc.musicItemsStateStream.listen(
       (event) {
-        currentPlaying = event;
-        changeWithAnimation();
+        setState(
+          () {
+            _musicItemsState = event;
+            animate();
+          },
+        );
       },
     );
-    GetIt.I
-        .get<MusicPlayerClass>()
-        .nextPlayingStream
-        .listen((event) => nextPlaying = event);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      pageController.position.isScrollingNotifier.addListener(() {
+        if (!pageController.position.isScrollingNotifier.value) {
+          // print('scroll is stopped');
+
+          if ((currentPage > 0 && previousPlaying == MusicItem.empty) ||
+              (currentPage > 1 && previousPlaying != MusicItem.empty)) {
+            mpc.seekToNext();
+          } else if (currentPage < 1 && previousPlaying != MusicItem.empty) {
+            mpc.seekToPrevious();
+          }
+        } else {
+          // print('scroll is started');
+        }
+      });
+    });
 
     super.initState();
   }
 
-  void changeWithAnimation() async {
-    if (_value != 0) return;
-  }
+  void animate() {
+    if (!pageController.hasClients) return;
 
-  void goToZero() async {
-    if (_value > 0.5) {
-      _value = 1 - _value;
-    } else if (_value < -0.5) {
-      _value = 1 + _value;
-    }
-
-    int steps = (_value ~/ 0.05).abs();
-
-    for (int i = 0; i < steps; i++) {
-      if (_value > 0) {
-        _value -= 0.05;
-        _ac.value = _value;
-      } else if (_value < 0) {
-        _value += 0.05;
-        _ac.value = _value.abs();
+    if (_musicItemsState.currentPlaying == currentPlaying &&
+        previousPlaying != MusicItem.empty &&
+        _musicItemsState.previousPlaying == MusicItem.empty) {
+      pageController.jumpToPage(0);
+    } else if (_musicItemsState.currentPlaying == currentPlaying &&
+        previousPlaying == MusicItem.empty &&
+        _musicItemsState.previousPlaying != MusicItem.empty) {
+      pageController.jumpToPage(1);
+    } else if (previousPlaying == _musicItemsState.currentPlaying) {
+      if (currentPage == 0) {
+        pageController.jumpToPage(
+          _musicItemsState.previousPlaying == MusicItem.empty ? 0 : 1,
+        );
+      } else {
+        pageController.jumpToPage(
+          _musicItemsState.previousPlaying == MusicItem.empty ? 1 : 2,
+        );
+        pageController.animateToPage(
+          _musicItemsState.previousPlaying == MusicItem.empty ? 0 : 1,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOutSine,
+        );
       }
-      await Future.delayed(const Duration(milliseconds: 40));
-    }
+    } else if (nextPlaying == _musicItemsState.currentPlaying) {
+      if (currentPage == (previousPlaying == MusicItem.empty ? 1 : 2)) {
+        pageController.jumpToPage(1);
+      } else {
+        pageController.jumpToPage(0);
+        pageController.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOutSine,
+        );
+      }
+    } else {}
 
-    _offset = Offset.zero;
-    _value = 0;
-    _ac.value = _value;
+    previousPlaying = _musicItemsState.previousPlaying;
+    currentPlaying = _musicItemsState.currentPlaying;
+    nextPlaying = _musicItemsState.nextPlaying;
   }
 
   @override
   Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onHorizontalDragStart: (details) {
-        _offset = Offset.zero;
-        _value = 0;
-        _ac.value = _value;
-      },
-      onHorizontalDragUpdate: (details) {
-        if ((previousPlaying == MusicItem.empty && details.delta.dx > 0) ||
-            (nextPlaying == MusicItem.empty && details.delta.dx < 0)) {
-          return;
-        }
-        _offset += details.delta;
-        double newValue = (_offset.dx / (width * 0.4));
-        _ac.value = newValue.abs();
+    pageController = PageController(
+      initialPage: previousPlaying == MusicItem.empty ? 0 : 1,
+    );
 
-        if (newValue.isNegative != _value.isNegative || newValue == 0) {
-          _value = newValue;
-          setState(() {});
-        } else {
-          _value = newValue;
-        }
-      },
-      onHorizontalDragEnd: (details) {
-        if (_value < -0.5 || details.primaryVelocity! < -1000) {
-          mpc.seekToNext();
-        } else if (_value > 0.5 || details.primaryVelocity! > 1000) {
-          mpc.seekToPrevious();
-        }
-
-        goToZero();
-      },
-      child: Stack(
-        children: [
-          _value > 0
-              ? FadeTransition(
-                  opacity: Tween(begin: -0.8, end: 1.0).animate(_ac),
-                  child: MiniTrackCardForNavigationPanel(
-                      musicItem: previousPlaying),
-                )
-              : Container(),
-          FadeTransition(
-            opacity: Tween(begin: 1.0, end: -0.8).animate(_ac),
-            child: MiniTrackCardForNavigationPanel(musicItem: currentPlaying),
+    return PageView(
+      controller: pageController,
+      children: [
+        if (_musicItemsState.previousPlaying != MusicItem.empty)
+          MiniTrackCardForNavigationPanel(
+            musicItem: _musicItemsState.previousPlaying,
           ),
-          _value < 0
-              ? FadeTransition(
-                  opacity: Tween(begin: -0.8, end: 1.0).animate(_ac),
-                  child:
-                      MiniTrackCardForNavigationPanel(musicItem: nextPlaying),
-                )
-              : Container(),
-        ],
-      ),
+        MiniTrackCardForNavigationPanel(
+          musicItem: _musicItemsState.currentPlaying,
+        ),
+        if (_musicItemsState.nextPlaying != MusicItem.empty)
+          MiniTrackCardForNavigationPanel(
+            musicItem: _musicItemsState.nextPlaying,
+          ),
+      ],
+      onPageChanged: (value) {
+        currentPage = value;
+      },
     );
   }
 }

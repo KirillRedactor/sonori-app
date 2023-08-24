@@ -35,9 +35,13 @@ class _MiniTrackCardForNavigationPanelState
     return Row(
       children: [
         SizedBox(
-          width: 45,
+          width: 50,
+          height: 50,
           child: TextButton(
             onPressed: () {},
+            style: TextButton.styleFrom(
+              shape: const CircleBorder(),
+            ),
             child: Icon(
               Icons.favorite_border,
               size: 30,
@@ -79,6 +83,158 @@ class _MiniTrackCardForNavigationPanelState
   }
 }
 
+class TrackWidget extends StatefulWidget {
+  const TrackWidget({super.key});
+
+  @override
+  State<TrackWidget> createState() => _TrackWidgetState();
+}
+
+class _TrackWidgetState extends State<TrackWidget> {
+  MusicItemsState _musicItemsState = MusicItemsState.empty;
+  PageController pageController = PageController();
+  int currentPage = 0;
+
+  MusicItem previousPlaying = MusicItem.empty;
+  MusicItem currentPlaying = MusicItem.empty;
+  MusicItem nextPlaying = MusicItem.empty;
+
+  @override
+  void initState() {
+    mpc.musicItemsStateStream.listen(
+      (event) {
+        setState(
+          () {
+            _musicItemsState = event;
+            animate();
+          },
+        );
+      },
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      pageController.position.isScrollingNotifier.addListener(() {
+        if (!pageController.position.isScrollingNotifier.value) {
+          // print('scroll is stopped');
+
+          if ((currentPage > 0 && previousPlaying == MusicItem.empty) ||
+              (currentPage > 1 && previousPlaying != MusicItem.empty)) {
+            mpc.seekToNext();
+          } else if (currentPage < 1 && previousPlaying != MusicItem.empty) {
+            mpc.seekToPrevious();
+          }
+        } else {
+          // print('scroll is started');
+        }
+      });
+    });
+
+    super.initState();
+  }
+
+  void animate() {
+    if (!pageController.hasClients) return;
+
+    if (_musicItemsState.currentPlaying == currentPlaying &&
+        previousPlaying != MusicItem.empty &&
+        _musicItemsState.previousPlaying == MusicItem.empty) {
+      pageController.jumpToPage(0);
+    } else if (_musicItemsState.currentPlaying == currentPlaying &&
+        previousPlaying == MusicItem.empty &&
+        _musicItemsState.previousPlaying != MusicItem.empty) {
+      pageController.jumpToPage(1);
+    } else if (previousPlaying == _musicItemsState.currentPlaying) {
+      if (currentPage == 0) {
+        pageController.jumpToPage(
+          _musicItemsState.previousPlaying == MusicItem.empty ? 0 : 1,
+        );
+      } else {
+        pageController.jumpToPage(
+          _musicItemsState.previousPlaying == MusicItem.empty ? 1 : 2,
+        );
+        pageController.animateToPage(
+          _musicItemsState.previousPlaying == MusicItem.empty ? 0 : 1,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOutSine,
+        );
+      }
+    } else if (nextPlaying == _musicItemsState.currentPlaying) {
+      if (currentPage == (previousPlaying == MusicItem.empty ? 1 : 2)) {
+        pageController.jumpToPage(1);
+      } else {
+        pageController.jumpToPage(0);
+        pageController.animateToPage(
+          1,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOutSine,
+        );
+      }
+    } else {}
+
+    previousPlaying = _musicItemsState.previousPlaying;
+    currentPlaying = _musicItemsState.currentPlaying;
+    nextPlaying = _musicItemsState.nextPlaying;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    pageController = PageController(
+      initialPage: previousPlaying == MusicItem.empty ? 0 : 1,
+    );
+
+    double width = MediaQuery.of(context).size.width;
+
+    return SizedBox(
+      height: width * 0.95,
+      width: width * 0.95,
+      child: ShaderMask(
+        shaderCallback: (Rect rect) {
+          return LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: const [
+              Colors.black,
+              Colors.transparent,
+              Colors.transparent,
+              Colors.black
+            ],
+            stops: [
+              0.0,
+              pageController.hasClients
+                  ? 5 / pageController.position.extentInside
+                  : 0.1,
+              pageController.hasClients
+                  ? 1 - 5 / pageController.position.extentInside
+                  : 0.1,
+              1.0
+            ], // 10% black, 80% transparent, 10% black
+          ).createShader(rect);
+        },
+        blendMode: BlendMode.dstOut,
+        child: PageView(
+          controller: pageController,
+          children: [
+            if (_musicItemsState.previousPlaying != MusicItem.empty)
+              TrackCard(
+                musicItem: _musicItemsState.previousPlaying,
+              ),
+            TrackCard(
+              musicItem: _musicItemsState.currentPlaying,
+            ),
+            if (_musicItemsState.nextPlaying != MusicItem.empty)
+              TrackCard(
+                musicItem: _musicItemsState.nextPlaying,
+              ),
+          ],
+          onPageChanged: (value) {
+            currentPage = value;
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class TrackCard extends StatefulWidget {
   final MusicItem musicItem;
 
@@ -93,14 +249,13 @@ class _TrackCardState extends State<TrackCard> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    // double width = MediaQuery.of(context).size.width;
     return SizedBox(
       // color: Colors.grey[200],
-      height: width * 0.95,
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: CachedNetworkImage(
@@ -113,27 +268,6 @@ class _TrackCardState extends State<TrackCard> {
               ),
             ),
           ),
-          MarqueeWidget(
-            child: Text(
-              widget.musicItem.mediaItem.title,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          MarqueeWidget(
-            child: Text(
-              widget.musicItem.mediaItem.artist ?? "Unknown artist",
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
         ],
       ),
     );

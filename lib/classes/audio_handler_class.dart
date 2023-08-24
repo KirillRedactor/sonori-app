@@ -176,7 +176,7 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         systemActions: {
           MediaAction.seek,
         },
-        androidCompactActionIndices: [1, 2, 3],
+        androidCompactActionIndices: [0, 1, 2],
         processingState: const {
           ProcessingState.idle: AudioProcessingState.idle,
           ProcessingState.loading: AudioProcessingState.loading,

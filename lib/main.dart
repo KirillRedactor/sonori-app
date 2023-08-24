@@ -19,7 +19,13 @@ void main() async {
   } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     null;
   } else if (Platform.isAndroid) {
-    null;
+    /*SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.dark,
+        statusBarColor: Colors.transparent,
+      ),
+    );*/
   } else if (Platform.isIOS) {
     null;
   } else {

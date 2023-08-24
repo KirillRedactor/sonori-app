@@ -9,6 +9,8 @@ import "package:get_it/get_it.dart";
 import "package:musicplayer_app/classes/music_player_class.dart";
 import 'dart:ui' as ui;
 
+import "package:musicplayer_app/components/cards_widgets.dart";
+
 MusicItem mIFirst = MusicItem(
   id: 111111111,
   mediaItem: MediaItem(

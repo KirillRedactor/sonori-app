@@ -21,6 +21,10 @@ class MusicPlayerClass {
   MusicItem _secondPlayerCurrentMusicItem = MusicItem.empty;
   MusicItem _zerothPlayerCurrentMusicItem = MusicItem.empty;
 
+  final StreamController<List<MusicItem>> _queueStreamController =
+      StreamController<List<MusicItem>>.broadcast();
+  Stream<List<MusicItem>> get queuegStream => _queueStreamController.stream;
+
   List<MusicItem> _queue = [];
   List<MusicItem> get getQueue => _queue;
   List<MusicItem> _musicItemList = [];
@@ -48,6 +52,23 @@ class MusicPlayerClass {
       _nextPlayingStreamController.stream;
   MusicItem _nextPlaying = MusicItem.empty;
   MusicItem get nextPlaying => _nextPlaying;
+
+  // Music items state variables
+  final StreamController<MusicItemsState> _musicItemsStateStreamController =
+      StreamController<MusicItemsState>.broadcast();
+  Stream<MusicItemsState> get musicItemsStateStream =>
+      _musicItemsStateStreamController.stream;
+  MusicItemsState _musicItemsState = MusicItemsState.empty;
+  MusicItemsState get musicItemsState => _musicItemsState;
+
+  Future<void> _updateMusicItemsState() async {
+    _musicItemsState = MusicItemsState(
+      previousPlaying: _previousPlaying,
+      currentPlaying: _currentPlaying,
+      nextPlaying: _nextPlaying,
+    );
+    _musicItemsStateStreamController.add(_musicItemsState);
+  }
 
   // Playing variables
   final StreamController<bool> _playingStreamController =
@@ -83,6 +104,14 @@ class MusicPlayerClass {
   Stream<LoopMode> get loopModeStream => _loopModeSteamController.stream;
   LoopMode _loopMode = LoopMode.off;
   LoopMode get loopMode => _loopMode;
+
+  // Shuffle mode variables
+  final StreamController<bool> _shuffleModeEnabledSteamController =
+      StreamController<bool>.broadcast();
+  Stream<bool> get shuffleModeEnabledSteam =>
+      _shuffleModeEnabledSteamController.stream;
+  bool _shuffleModeEnabled = false;
+  bool get huffleModeEnabled => _shuffleModeEnabled;
 
   Duration smoothTransition = const Duration(seconds: 0);
 
@@ -245,15 +274,18 @@ class MusicPlayerClass {
     for (int i = 0; i < newQueue.length; i++) {
       newQueue[i] = newQueue[i].copyWith(index: i);
     }
-    _queue = newQueue;
-    _musicItemList = newQueue;
+    _queue = [...newQueue];
+    _musicItemList = [...newQueue];
+    isShuffle ? _queue.shuffle() : null;
 
     pause();
 
     if (fromItem > 0) {
       _previousPlayingStreamController.add(_queue[fromItem - 1]);
+      _previousPlaying = _queue[fromItem - 1];
     } else {
       _previousPlayingStreamController.add(MusicItem.empty);
+      _previousPlaying = MusicItem.empty;
     }
     _updateMediaItemZerothPlayer(
         fromItem > 0 ? _queue[fromItem - 1] : MusicItem.empty);
@@ -265,10 +297,12 @@ class MusicPlayerClass {
     if (fromItem != _queue.length - 1) {
       _updateMediaItemSecondPlayer(_queue[fromItem + 1]);
       _nextPlayingStreamController.add(_queue[fromItem + 1]);
+      _nextPlaying = _queue[fromItem + 1];
     }
 
     // _playingStreamController.add(playQueue);
     playQueue ? play() : null;
+    _updateMusicItemsState();
   }
 
   Future<void> play({bool smooth = false}) async {
@@ -323,7 +357,7 @@ class MusicPlayerClass {
   }
 
   Future<void> seekToNext({bool smooth = false}) async {
-    if (_currentPlaying.index == _queue.length - 1) return;
+    if (_queue.indexOf(_currentPlaying) == _queue.length - 1) return;
 
     if (smooth) {
       if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
@@ -359,20 +393,21 @@ class MusicPlayerClass {
     _previousPlaying = _currentPlaying;
     _currentPlayingStreamController.add(_nextPlaying);
     _currentPlaying = _nextPlaying;
-    if (_currentPlaying.index != _queue.length - 1) {
-      _nextPlayingStreamController.add(_queue[_nextPlaying.index! + 1]);
-      _nextPlaying = _queue[_nextPlaying.index! + 1];
+    if (_queue.indexOf(_currentPlaying) != _queue.length - 1) {
+      _nextPlayingStreamController
+          .add(_queue[_queue.indexOf(_nextPlaying) + 1]);
+      _nextPlaying = _queue[_queue.indexOf(_nextPlaying) + 1];
     } else {
       _nextPlayingStreamController.add(MusicItem.empty);
       _nextPlaying = MusicItem.empty;
     }
-    if (_currentPlaying.index != _queue.length - 1) {
+    if (_queue.indexOf(_currentPlaying) != _queue.length - 1) {
       if (needToUpdate == Player.zeroth) {
-        _updateMediaItemZerothPlayer(_queue[_nextPlaying.index!]);
+        _updateMediaItemZerothPlayer(_queue[_queue.indexOf(_nextPlaying)]);
       } else if (needToUpdate == Player.first) {
-        _updateMediaItemFirstPlayer(_queue[_nextPlaying.index!]);
+        _updateMediaItemFirstPlayer(_queue[_queue.indexOf(_nextPlaying)]);
       } else if (needToUpdate == Player.second) {
-        _updateMediaItemSecondPlayer(_queue[_nextPlaying.index!]);
+        _updateMediaItemSecondPlayer(_queue[_queue.indexOf(_nextPlaying)]);
       }
     } else {
       if (needToUpdate == Player.zeroth) {
@@ -385,10 +420,11 @@ class MusicPlayerClass {
     }
 
     isPlaying ? play(smooth: smooth) : null;
+    _updateMusicItemsState();
   }
 
   Future<void> seekToPrevious() async {
-    if (_currentPlaying.index == 0) return;
+    if (_queue.indexOf(_currentPlaying) == 0) return;
     _zerothPlayer.pause();
     _firstPlayer.pause();
     _secondPlayer.pause();
@@ -410,21 +446,25 @@ class MusicPlayerClass {
     _currentPlayingStreamController.add(_previousPlaying);
     _currentPlaying = _previousPlaying;
 
-    if (_currentPlaying.index != 0) {
-      _previousPlayingStreamController.add(_queue[_currentPlaying.index! - 1]);
-      _previousPlaying == _queue[_currentPlaying.index! - 1];
+    if (_queue.indexOf(_currentPlaying) != 0) {
+      _previousPlayingStreamController
+          .add(_queue[_queue.indexOf(_currentPlaying) - 1]);
+      _previousPlaying = _queue[_queue.indexOf(_currentPlaying) - 1];
     } else {
       _previousPlayingStreamController.add(MusicItem.empty);
-      _previousPlaying == MusicItem.empty;
+      _previousPlaying = MusicItem.empty;
     }
 
-    if (_currentPlaying.index != 0) {
+    if (_queue.indexOf(_currentPlaying) != 0) {
       if (needToUpdate == Player.zeroth) {
-        _updateMediaItemZerothPlayer(_queue[_currentPlaying.index! - 1]);
+        _updateMediaItemZerothPlayer(
+            _queue[_queue.indexOf(_currentPlaying) - 1]);
       } else if (needToUpdate == Player.first) {
-        _updateMediaItemFirstPlayer(_queue[_currentPlaying.index! - 1]);
+        _updateMediaItemFirstPlayer(
+            _queue[_queue.indexOf(_currentPlaying) - 1]);
       } else if (needToUpdate == Player.second) {
-        _updateMediaItemSecondPlayer(_queue[_currentPlaying.index! - 1]);
+        _updateMediaItemSecondPlayer(
+            _queue[_queue.indexOf(_currentPlaying) - 1]);
       }
     } else {
       if (needToUpdate == Player.zeroth) {
@@ -437,9 +477,81 @@ class MusicPlayerClass {
     }
 
     isPlaying ? play() : null;
+    _updateMusicItemsState();
   }
 
-  Future<void> setShuffleModeEnabled(bool enabled) async {}
+  Future<void> setShuffleModeEnabled(bool enabled) async {
+    _shuffleModeEnabledSteamController.add(enabled);
+    _shuffleModeEnabled = enabled;
+    if (enabled) {
+      // Если включено
+
+      List<MusicItem> newQueue = _queue;
+      newQueue.shuffle();
+      newQueue.remove(_currentPlaying);
+      newQueue.insert(0, _currentPlaying);
+      _queue = newQueue;
+
+      if (_previousPlaying == _zerothPlayerCurrentMusicItem) {
+        _updateMediaItemZerothPlayer(MusicItem.empty);
+      } else if (_previousPlaying == _firstPlayerCurrentMusicItem) {
+        _updateMediaItemFirstPlayer(MusicItem.empty);
+      } else if (_previousPlaying == _secondPlayerCurrentMusicItem) {
+        _updateMediaItemSecondPlayer(MusicItem.empty);
+      }
+      _previousPlayingStreamController.add(MusicItem.empty);
+      _previousPlaying = MusicItem.empty;
+
+      if (_queue.length > 1) {
+        if (_nextPlaying == _zerothPlayerCurrentMusicItem) {
+          _updateMediaItemZerothPlayer(_queue[1]);
+        } else if (_nextPlaying == _firstPlayerCurrentMusicItem) {
+          _updateMediaItemFirstPlayer(_queue[1]);
+        } else if (_nextPlaying == _secondPlayerCurrentMusicItem) {
+          _updateMediaItemSecondPlayer(_queue[1]);
+        }
+      }
+      _nextPlayingStreamController.add(_queue[1]);
+      _nextPlaying = _queue[1];
+    } else {
+      _queue = [..._musicItemList];
+
+      if (_currentPlaying == _zerothPlayerCurrentMusicItem) {
+        _updateMediaItemFirstPlayer(_currentPlaying.index! != 0
+            ? _queue[_currentPlaying.index! - 1]
+            : MusicItem.empty);
+        _updateMediaItemSecondPlayer(_currentPlaying.index! != _queue.length - 1
+            ? _queue[_currentPlaying.index! + 1]
+            : MusicItem.empty);
+      } else if (_currentPlaying == _firstPlayerCurrentMusicItem) {
+        _updateMediaItemZerothPlayer(_currentPlaying.index! != 0
+            ? _queue[_currentPlaying.index! - 1]
+            : MusicItem.empty);
+        _updateMediaItemSecondPlayer(_currentPlaying.index! != _queue.length - 1
+            ? _queue[_currentPlaying.index! + 1]
+            : MusicItem.empty);
+      } else if (_currentPlaying == _secondPlayerCurrentMusicItem) {
+        _updateMediaItemZerothPlayer(_currentPlaying.index! != 0
+            ? _queue[_currentPlaying.index! - 1]
+            : MusicItem.empty);
+        _updateMediaItemFirstPlayer(_currentPlaying.index! != _queue.length - 1
+            ? _queue[_currentPlaying.index! + 1]
+            : MusicItem.empty);
+      }
+
+      _previousPlaying = _currentPlaying.index! != 0
+          ? _queue[_currentPlaying.index! - 1]
+          : MusicItem.empty;
+      _previousPlayingStreamController.add(_previousPlaying);
+
+      _nextPlaying = _currentPlaying.index! != _queue.length - 1
+          ? _queue[_currentPlaying.index! + 1]
+          : MusicItem.empty;
+      _nextPlayingStreamController.add(_nextPlaying);
+    }
+
+    _updateMusicItemsState();
+  }
 
   Future<void> setLoopMode(LoopMode loopMode) async {
     _loopModeSteamController.add(loopMode);
@@ -531,7 +643,10 @@ class MusicPlayerClass {
         tag: musicItem.mediaItem,
       );
       final playlist = ConcatenatingAudioSource(children: [as]);
-      await _zerothPlayer.setAudioSource(playlist);
+      await _zerothPlayer.setAudioSource(
+        playlist,
+        // preload: false,
+      );
     } catch (e) {
       print("Error: $e");
     }
@@ -546,7 +661,10 @@ class MusicPlayerClass {
         tag: musicItem.mediaItem,
       );
       final playlist = ConcatenatingAudioSource(children: [as]);
-      await _firstPlayer.setAudioSource(playlist);
+      await _firstPlayer.setAudioSource(
+        playlist,
+        // preload: false,
+      );
     } catch (e) {
       print("Error: $e");
     }
@@ -561,7 +679,10 @@ class MusicPlayerClass {
         tag: musicItem.mediaItem,
       );
       final playlist = ConcatenatingAudioSource(children: [as]);
-      await _secondPlayer.setAudioSource(playlist);
+      await _secondPlayer.setAudioSource(
+        playlist,
+        // preload: false,
+      );
     } catch (e) {
       print("Error: $e");
     }
@@ -570,6 +691,36 @@ class MusicPlayerClass {
 }
 
 enum Player { unknown, zeroth, first, second }
+
+class MusicItemsState {
+  MusicItem previousPlaying;
+  MusicItem currentPlaying;
+  MusicItem nextPlaying;
+
+  MusicItemsState({
+    required this.previousPlaying,
+    required this.currentPlaying,
+    required this.nextPlaying,
+  });
+
+  static final empty = MusicItemsState(
+    previousPlaying: MusicItem.empty,
+    currentPlaying: MusicItem.empty,
+    nextPlaying: MusicItem.empty,
+  );
+
+  MusicItemsState copyWith({
+    MusicItem? previousPlaying,
+    MusicItem? currentPlaying,
+    MusicItem? nextPlaying,
+  }) {
+    return MusicItemsState(
+      previousPlaying: previousPlaying ?? this.previousPlaying,
+      currentPlaying: currentPlaying ?? this.currentPlaying,
+      nextPlaying: nextPlaying ?? this.nextPlaying,
+    );
+  }
+}
 
 class MusicItem {
   int id;
