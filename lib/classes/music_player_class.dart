@@ -161,7 +161,7 @@ class MusicPlayerClass {
     loopModeStream.listen((event) => _loopMode = event);
 
     durationStateStream.listen((event) {
-      if (event.total == Duration.zero) return;
+      if (event.total == Duration.zero || !_isPlaying) return;
 
       int time = event.total.inMilliseconds - event.progress.inMilliseconds;
       if (smoothTransition != Duration.zero) {
@@ -181,7 +181,7 @@ class MusicPlayerClass {
             if (_currentPlaying == _queue.last) {
               updateQueue(
                 _musicItemList,
-                isShuffle: false, // TODO
+                isShuffle: _shuffleModeEnabled,
                 playQueue: true,
               );
             } else {

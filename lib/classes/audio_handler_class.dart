@@ -193,6 +193,7 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     });
   }
 
+  // ignore: unused_element
   void _initAudioPlayback() {
     playMediaItem(GetIt.I<MusicPlayerClass>().currentPlaying.mediaItem);
 
