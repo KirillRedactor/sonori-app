@@ -43,7 +43,7 @@ class NavigationPageState extends State<NavigationPage>
     minSPHeight = 102 + navBarHeight;
     return Scaffold(
       body: SlidingUpPanel(
-        // color: Colors.grey[300]!,
+        color: const Color.fromARGB(255, 39, 41, 43),
         controller: controller,
         maxHeight: height,
         minHeight: minSPHeight,
@@ -60,9 +60,6 @@ class NavigationPageState extends State<NavigationPage>
           }
         },
         body: const RouterOutlet(),
-        // panel: Panel(
-        //   minHeight: minSPHeight,
-        // ),
         panel: PanelPage(
           ac: _ac,
           panelController: controller,

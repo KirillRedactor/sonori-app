@@ -371,43 +371,63 @@ class PanelPartWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
+                TextButton(
                   onPressed: () {},
-                  icon: const Icon(
+                  style: TextButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
+                  child: const Icon(
                     Icons.heart_broken_outlined,
                     size: 30,
                   ),
                 ),
-                RoundIconButton(
+                TextButton(
                   onPressed: () => mpc.seekToPrevious(),
-                  icon: Icons.skip_previous,
-                  size: 45,
+                  style: TextButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
+                  child: const Icon(
+                    Icons.skip_previous,
+                    size: 45,
+                  ),
                 ),
                 StreamBuilder<bool>(
-                    stream: mpc.playingStream,
-                    builder: (context, snapshot) {
-                      return RoundIconButton(
-                        onPressed: () {
-                          if (snapshot.data ?? false) {
-                            mpc.pause();
-                          } else {
-                            mpc.play();
-                          }
-                        },
-                        icon: snapshot.data ?? false
-                            ? Icons.pause
-                            : Icons.play_arrow,
+                  stream: mpc.playingStream,
+                  builder: (context, snapshot) {
+                    return TextButton(
+                      onPressed: () {
+                        if (snapshot.data ?? false) {
+                          mpc.pause();
+                        } else {
+                          mpc.play();
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        shape: const CircleBorder(),
+                      ),
+                      child: Icon(
+                        snapshot.data ?? false ? Icons.pause : Icons.play_arrow,
                         size: 60,
-                      );
-                    }),
-                RoundIconButton(
-                  onPressed: () => GetIt.I.get<MusicPlayerClass>().seekToNext(),
-                  icon: Icons.skip_next,
-                  size: 45,
+                      ),
+                    );
+                  },
                 ),
-                IconButton(
+                TextButton(
+                    onPressed: () =>
+                        GetIt.I.get<MusicPlayerClass>().seekToNext(),
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.skip_next,
+                      size: 45,
+                    )),
+                TextButton(
                   onPressed: () {},
-                  icon: const Icon(
+                  style: TextButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
+                  child: const Icon(
                     Icons.favorite_outline,
                     size: 30,
                   ),

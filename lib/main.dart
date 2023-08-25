@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:musicplayer_app/pages/home_page.dart';
 import 'package:musicplayer_app/pages/navigation_page.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -60,13 +59,8 @@ class _MyWidgetState extends State<MyWidget> {
     Modular.setInitialRoute('/home');
     return MaterialApp.router(
       title: 'Exontix music (alpha version)',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        // useMaterial3: true,
-        textTheme: GoogleFonts.ralewayTextTheme(),
-        // textTheme: GoogleFonts.silkscreenTextTheme(), //* pixels
-        // textTheme: GoogleFonts.robotoTextTheme(),
-      ),
+      // theme: lightTheme,
+      // darkTheme: darkTheme,
       routerConfig: Modular.routerConfig,
     );
   }
