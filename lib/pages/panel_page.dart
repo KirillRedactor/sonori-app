@@ -39,7 +39,7 @@ class _PanelPageState extends State<PanelPage> {
   double currentPosition = 0;
 
   final double iconSize = 30;
-  final Color iconColor = Colors.black;
+  final Color iconColor = Colors.white;
 
   @override
   void initState() {
@@ -135,7 +135,7 @@ class _PanelPageState extends State<PanelPage> {
                                       ? Icons.pause
                                       : Icons.play_arrow,
                                   size: 30,
-                                  color: Colors.black,
+                                  color: Colors.white,
                                 ),
                               );
                             },
@@ -157,11 +157,11 @@ class _PanelPageState extends State<PanelPage> {
                             final total = durationState?.total ?? Duration.zero;
                             return ProgressBar(
                               barHeight: 2,
-                              thumbColor: Colors.black,
+                              thumbColor: Colors.white,
                               thumbRadius: 0,
                               thumbGlowRadius: 0,
-                              progressBarColor: Colors.black.withOpacity(0.30),
-                              baseBarColor: Colors.black.withAlpha(30),
+                              progressBarColor: Colors.white.withOpacity(0.30),
+                              baseBarColor: Colors.white.withAlpha(30),
                               progress: progress,
                               total: total,
                               timeLabelLocation: TimeLabelLocation.none,
@@ -260,53 +260,45 @@ class PanelPartWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RoundIconButton(
-                  onPressed: () => widget.panelController.close(),
-                  icon: Icons.arrow_downward,
-                  padding: const EdgeInsets.all(8),
-                ),
-                const Column(
+                TextButton(
+                    onPressed: () => widget.panelController.close(),
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_downward,
+                      color: Colors.white,
+                    )),
+                Column(
                   children: [
                     Text(
                       "NOW PLAYING FROM",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.black45,
+                        color: Colors.white.withOpacity(0.9),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "Test playlist",
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.black,
+                        color: Colors.white,
                       ),
                     ),
                   ],
                 ),
-                RoundIconButton(
+                TextButton(
                   onPressed: () {},
-                  icon: Icons.menu,
-                  padding: const EdgeInsets.all(8),
+                  style: TextButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
+                  child: const Icon(
+                    Icons.menu,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
-            /*StreamBuilder<MusicItem>(
-              stream: mpc.currentPlayingStream,
-              builder: (context, snapshot) {
-                return TrackCard(
-                  musicItem: snapshot.data ?? MusicItem.empty,
-                );
-              },
-            ),*/
-            /*StreamBuilder<MusicItem>(
-              stream: mpc.currentPlayingStream,
-              builder: (context, snapshot) {
-                return ImageWidget(
-                  musicItem: snapshot.data ?? MusicItem.empty,
-                  borderRadius: 10,
-                );
-              },
-            ),*/
             const TrackWidget(),
             StreamBuilder<MusicItem>(
               stream: mpc.currentPlayingStream,
@@ -322,7 +314,7 @@ class PanelPartWidget extends StatelessWidget {
                           (snapshot.data ?? MusicItem.empty).mediaItem.title,
                           style: const TextStyle(
                             fontSize: 16,
-                            color: Colors.black,
+                            color: Colors.white,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -333,7 +325,7 @@ class PanelPartWidget extends StatelessWidget {
                               "Unknown artist",
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Colors.black54,
+                            color: Colors.white,
                             decoration: TextDecoration.none,
                           ),
                         ),
@@ -347,20 +339,16 @@ class PanelPartWidget extends StatelessWidget {
               stream: mpc.durationStateStream,
               builder: (context, snapshot) {
                 final durationState = snapshot.data;
-                // if (durationState.total == Duration.zero) durationState = getIt<MusicPlayerClass>().getDurationState;
                 final progress = durationState?.progress ?? Duration.zero;
-                // final buffered = durationState?.buffered ?? Duration.zero;
                 final total = durationState?.total ?? Duration.zero;
                 return ProgressBar(
-                  thumbColor: Colors.black,
-                  // thumbCanPaintOutsideBar: false,
+                  thumbColor: Colors.white,
+                  timeLabelTextStyle: const TextStyle(color: Colors.white),
                   thumbRadius: 7,
                   thumbGlowRadius: 16,
-                  progressBarColor: Colors.black,
-                  baseBarColor: Colors.black.withOpacity(0.24),
+                  progressBarColor: Colors.white,
+                  baseBarColor: Colors.white.withOpacity(0.24),
                   progress: progress,
-                  // buffered: buffered,
-                  // bufferedBarColor: Colors.grey[500],
                   total: total,
                   onSeek: (duration) {
                     mpc.seek(duration);
@@ -379,6 +367,7 @@ class PanelPartWidget extends StatelessWidget {
                   child: const Icon(
                     Icons.heart_broken_outlined,
                     size: 30,
+                    color: Colors.white,
                   ),
                 ),
                 TextButton(
@@ -389,6 +378,7 @@ class PanelPartWidget extends StatelessWidget {
                   child: const Icon(
                     Icons.skip_previous,
                     size: 45,
+                    color: Colors.white,
                   ),
                 ),
                 StreamBuilder<bool>(
@@ -406,22 +396,26 @@ class PanelPartWidget extends StatelessWidget {
                         shape: const CircleBorder(),
                       ),
                       child: Icon(
-                        snapshot.data ?? false ? Icons.pause : Icons.play_arrow,
+                        snapshot.data ?? false
+                            ? Icons.pause
+                            : Icons.play_arrow_sharp,
                         size: 60,
+                        color: Colors.white,
                       ),
                     );
                   },
                 ),
                 TextButton(
-                    onPressed: () =>
-                        GetIt.I.get<MusicPlayerClass>().seekToNext(),
-                    style: TextButton.styleFrom(
-                      shape: const CircleBorder(),
-                    ),
-                    child: const Icon(
-                      Icons.skip_next,
-                      size: 45,
-                    )),
+                  onPressed: () => GetIt.I.get<MusicPlayerClass>().seekToNext(),
+                  style: TextButton.styleFrom(
+                    shape: const CircleBorder(),
+                  ),
+                  child: const Icon(
+                    Icons.skip_next,
+                    size: 45,
+                    color: Colors.white,
+                  ),
+                ),
                 TextButton(
                   onPressed: () {},
                   style: TextButton.styleFrom(
@@ -430,6 +424,7 @@ class PanelPartWidget extends StatelessWidget {
                   child: const Icon(
                     Icons.favorite_outline,
                     size: 30,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -468,7 +463,7 @@ class PanelPartWidget extends StatelessWidget {
                           size: 30,
                           color: snapshot.data == LoopMode.one ||
                                   snapshot.data == LoopMode.all
-                              ? Colors.black
+                              ? Colors.white
                               : Colors.grey,
                         ),
                       );
@@ -487,7 +482,7 @@ class PanelPartWidget extends StatelessWidget {
                       child: Icon(Icons.shuffle,
                           size: 30,
                           color: snapshot.data == true
-                              ? Colors.black
+                              ? Colors.white
                               : Colors.grey),
                     );
                   },
@@ -601,6 +596,8 @@ class _MiniTrackWidgetState extends State<MiniTrackWidget> {
     );
 
     return PageView(
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       controller: pageController,
       children: [
         if (_musicItemsState.previousPlaying != MusicItem.empty)

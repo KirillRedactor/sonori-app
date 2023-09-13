@@ -104,8 +104,29 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   @override
-  Future<void> setRating(Rating rating, [Map<String, dynamic>? extras]) async {
-    print(rating);
+  Future customAction(String name, [Map<String, dynamic>? extras]) async {
+    if (name == "pause") {
+      playbackState.add(playbackState.value.copyWith(
+        controls: [
+          MediaControl.skipToPrevious,
+          MediaControl.play,
+          MediaControl.skipToNext,
+        ],
+        systemActions: {
+          MediaAction.seek,
+        },
+        androidCompactActionIndices: [0, 1, 2],
+        processingState: const {
+          ProcessingState.idle: AudioProcessingState.idle,
+          ProcessingState.loading: AudioProcessingState.loading,
+          ProcessingState.buffering: AudioProcessingState.buffering,
+          ProcessingState.ready: AudioProcessingState.ready,
+          ProcessingState.completed: AudioProcessingState.completed,
+        }[ProcessingState.idle]!,
+        playing: false,
+      ));
+    }
+    return super.customAction(name, extras);
   }
 
   @override

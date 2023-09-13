@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 ThemeData lightTheme = ThemeData(
-  brightness: Brightness.light,
+  // brightness: Brightness.light,
   textTheme: GoogleFonts.ralewayTextTheme().apply(),
-  colorSchemeSeed: const Color.fromRGBO(92, 168, 48, 1),
+  colorScheme: ColorScheme.dark(
+    background: Colors.black,
+    primary: Colors.white,
+    secondary: Colors.grey[300]!,
+  ),
 );
 
 

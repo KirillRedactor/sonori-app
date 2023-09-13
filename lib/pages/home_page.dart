@@ -66,43 +66,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // late StreamSubscription<MediaItem> _stream;
   @override
   void initState() {
-    // _stream =
-    //     GetIt.I.get<MusicPlayerClass>().currentPlaying.stream.listen((event) {
-    //   setState(() {
-    //     _currentPlayingMediaItem = event;
-    //   });
-    // });
     super.initState();
   }
 
   @override
   void dispose() {
-    // _stream.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
           "Home page",
           style: TextStyle(
-            // foreground: Paint()
-            //   ..shader = ui.Gradient.linear(
-            //     const Offset(0, 20),
-            //     const Offset(150, 20),
-            //     <Color>[
-            //       Color.fromARGB(255, 13, 181, 232),
-            //       // Color.fromARGB(255, 225, 13, 232),
-            //       Color.fromARGB(255, 192, 23, 23),
-            //     ],
-            //   ),
-            color: Colors.white,
+            foreground: Paint()
+              ..shader = ui.Gradient.linear(
+                const Offset(0, 0),
+                const Offset(150, 40),
+                <Color>[
+                  Color.fromARGB(255, 253, 89, 22),
+                  // Color.fromARGB(255, 225, 13, 232),
+                  Color.fromARGB(255, 204, 52, 198),
+                ],
+              ),
+            // color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 30,
           ),
@@ -133,22 +126,31 @@ class _HomePageState extends State<HomePage> {
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().nextPlayingStream,
             builder: (context, snapshot) {
-              return Text(snapshot.data?.mediaItem.title ??
-                  MusicItem.empty.mediaItem.title);
+              return Text(
+                snapshot.data?.mediaItem.title ??
+                    MusicItem.empty.mediaItem.title,
+                style: TextStyle(color: Colors.white),
+              );
             },
           ),
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().currentPlayingStream,
             builder: (context, snapshot) {
-              return Text(snapshot.data?.mediaItem.title ??
-                  MusicItem.empty.mediaItem.title);
+              return Text(
+                snapshot.data?.mediaItem.title ??
+                    MusicItem.empty.mediaItem.title,
+                style: TextStyle(color: Colors.white),
+              );
             },
           ),
           StreamBuilder<MusicItem>(
             stream: GetIt.I<MusicPlayerClass>().previousPlayingStream,
             builder: (context, snapshot) {
-              return Text(snapshot.data?.mediaItem.title ??
-                  MusicItem.empty.mediaItem.title);
+              return Text(
+                snapshot.data?.mediaItem.title ??
+                    MusicItem.empty.mediaItem.title,
+                style: TextStyle(color: Colors.white),
+              );
             },
           ),
           if (false)

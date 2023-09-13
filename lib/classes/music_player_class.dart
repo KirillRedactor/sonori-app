@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:get_it/get_it.dart';
@@ -726,8 +727,10 @@ class MusicItem {
   int id;
   MediaItem mediaItem;
   int? index;
+  Color? color;
 
-  MusicItem({required this.id, required this.mediaItem, this.index});
+  MusicItem(
+      {required this.id, required this.mediaItem, this.index, this.color});
 
   static final empty = MusicItem(
     id: 0,
@@ -737,11 +740,17 @@ class MusicItem {
     ),
   );
 
-  MusicItem copyWith({int? id, MediaItem? mediaItem, int? index}) {
+  MusicItem copyWith({
+    int? id,
+    MediaItem? mediaItem,
+    int? index,
+    Color? color,
+  }) {
     return MusicItem(
       id: id ?? this.id,
       mediaItem: mediaItem ?? this.mediaItem,
       index: index ?? this.index,
+      color: color ?? this.color,
     );
   }
 }

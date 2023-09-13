@@ -45,7 +45,7 @@ class _MiniTrackCardForNavigationPanelState
             child: Icon(
               Icons.favorite_border,
               size: 30,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
         ),
@@ -59,7 +59,7 @@ class _MiniTrackCardForNavigationPanelState
                     widget.musicItem.mediaItem.title,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black,
+                      color: Colors.white,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -69,7 +69,7 @@ class _MiniTrackCardForNavigationPanelState
                     widget.musicItem.mediaItem.artist ?? "Unknown artist",
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black54,
+                      color: Colors.white54,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -185,8 +185,8 @@ class _TrackWidgetState extends State<TrackWidget> {
     double width = MediaQuery.of(context).size.width;
 
     return SizedBox(
-      height: width * 0.95,
-      width: width * 0.95,
+      height: width * 0.9,
+      width: width * 0.9,
       child: ShaderMask(
         shaderCallback: (Rect rect) {
           return LinearGradient(
@@ -212,6 +212,8 @@ class _TrackWidgetState extends State<TrackWidget> {
         },
         blendMode: BlendMode.dstOut,
         child: PageView(
+          physics:
+              BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           controller: pageController,
           children: [
             if (_musicItemsState.previousPlaying != MusicItem.empty)
@@ -250,25 +252,19 @@ class _TrackCardState extends State<TrackCard> {
   @override
   Widget build(BuildContext context) {
     // double width = MediaQuery.of(context).size.width;
-    return SizedBox(
-      // color: Colors.grey[200],
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: CachedNetworkImage(
-                fit: BoxFit.scaleDown,
-                imageUrl: widget.musicItem.mediaItem.artUri.toString(),
-                placeholder: (context, url) => Container(
-                  color: Colors.grey.shade400,
-                ),
-                errorWidget: (context, url, error) => errorImage,
-              ),
-            ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      // padding: const EdgeInsets.all(0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: CachedNetworkImage(
+          fit: BoxFit.fitWidth,
+          imageUrl: widget.musicItem.mediaItem.artUri.toString(),
+          placeholder: (context, url) => Container(
+            color: Colors.grey.shade400,
           ),
-        ],
+          errorWidget: (context, url, error) => errorImage,
+        ),
       ),
     );
   }

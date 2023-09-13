@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get_it/get_it.dart';
 import 'package:musicplayer_app/pages/home_page.dart';
 import 'package:musicplayer_app/pages/navigation_page.dart';
+import 'package:musicplayer_app/themes/light_theme.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'classes/music_player_class.dart';
@@ -18,13 +20,12 @@ void main() async {
   } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     null;
   } else if (Platform.isAndroid) {
-    /*SystemChrome.setSystemUIOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.dark,
-        statusBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.black,
       ),
-    );*/
+    );
   } else if (Platform.isIOS) {
     null;
   } else {
@@ -59,7 +60,7 @@ class _MyWidgetState extends State<MyWidget> {
     Modular.setInitialRoute('/home');
     return MaterialApp.router(
       title: 'Exontix music (alpha version)',
-      // theme: lightTheme,
+      theme: lightTheme,
       // darkTheme: darkTheme,
       routerConfig: Modular.routerConfig,
     );
@@ -75,5 +76,6 @@ class MyModule extends Module {
     r.child('/', child: (context) => const NavigationPage(), children: [
       ChildRoute('/home', child: (context) => const HomePage()),
     ]);
+    // r.child("/home", child: (context) => const HomePage());
   }
 }
