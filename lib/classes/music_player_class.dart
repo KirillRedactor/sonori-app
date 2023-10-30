@@ -360,6 +360,8 @@ class MusicPlayerClass {
   Future<void> seekToNext({bool smooth = false}) async {
     if (_queue.indexOf(_currentPlaying) == _queue.length - 1) return;
 
+    _durationStateStreamController.add(DurationState.zero);
+
     if (smooth) {
       if (_zerothPlayerCurrentMusicItem == _currentPlaying) {
         _firstPlayer.pause();
@@ -426,6 +428,7 @@ class MusicPlayerClass {
 
   Future<void> seekToPrevious() async {
     if (_queue.indexOf(_currentPlaying) == 0) return;
+    _durationStateStreamController.add(DurationState.zero);
     _zerothPlayer.pause();
     _firstPlayer.pause();
     _secondPlayer.pause();

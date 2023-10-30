@@ -596,8 +596,7 @@ class _MiniTrackWidgetState extends State<MiniTrackWidget> {
     );
 
     return PageView(
-      physics:
-          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      physics: const BouncingScrollPhysics(),
       controller: pageController,
       children: [
         if (_musicItemsState.previousPlaying != MusicItem.empty)

@@ -21,6 +21,7 @@ MusicItem mIFirst = MusicItem(
     artUri: Uri.parse(
         "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/243b9e26190d947bfc046b6360446b2b.1000x1000x1.jpg?alt=media&token=7b901867-934c-4030-a05a-40d878916459"),
   ),
+  color: Color.fromARGB(219, 255, 98, 0),
 );
 
 MusicItem mISecond = MusicItem(
@@ -33,6 +34,7 @@ MusicItem mISecond = MusicItem(
     artUri: Uri.parse(
         "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.png?alt=media&token=7cbad75f-f36f-400d-b498-e856bdd63efb"),
   ),
+  color: Color.fromARGB(219, 187, 95, 49),
 );
 
 MusicItem mIThird = MusicItem(
@@ -45,6 +47,7 @@ MusicItem mIThird = MusicItem(
     artUri: Uri.parse(
         "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Scarlett.png?alt=media&token=6e279561-f3de-4e52-9441-45a2e3186afd"),
   ),
+  color: Color.fromARGB(255, 180, 74, 141),
 );
 MusicItem mIFourth = MusicItem(
   id: 111111114,
@@ -56,6 +59,7 @@ MusicItem mIFourth = MusicItem(
     artUri: Uri.parse(
         "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Throne%20(ft.%20Neoni)%20-%20Lost%20Identities%20Remix.jpg?alt=media&token=929a3c13-9a69-409a-a31c-3720200ee0e2"),
   ),
+  color: Color.fromARGB(219, 31, 31, 37),
 );
 
 class HomePage extends StatefulWidget {

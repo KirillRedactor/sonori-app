@@ -212,8 +212,7 @@ class _TrackWidgetState extends State<TrackWidget> {
         },
         blendMode: BlendMode.dstOut,
         child: PageView(
-          physics:
-              BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          physics: BouncingScrollPhysics(),
           controller: pageController,
           children: [
             if (_musicItemsState.previousPlaying != MusicItem.empty)
@@ -256,7 +255,7 @@ class _TrackCardState extends State<TrackCard> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       // padding: const EdgeInsets.all(0),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
         child: CachedNetworkImage(
           fit: BoxFit.fitWidth,
           imageUrl: widget.musicItem.mediaItem.artUri.toString(),
