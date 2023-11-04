@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/audio_handler_class.dart';
+import 'package:musicplayer_app/classes/musicitem_class.dart';
 
 MusicPlayerClass get mpc => GetIt.I<MusicPlayerClass>();
 
@@ -722,38 +722,6 @@ class MusicItemsState {
       previousPlaying: previousPlaying ?? this.previousPlaying,
       currentPlaying: currentPlaying ?? this.currentPlaying,
       nextPlaying: nextPlaying ?? this.nextPlaying,
-    );
-  }
-}
-
-class MusicItem {
-  int id;
-  MediaItem mediaItem;
-  int? index;
-  Color? color;
-
-  MusicItem(
-      {required this.id, required this.mediaItem, this.index, this.color});
-
-  static final empty = MusicItem(
-    id: 0,
-    mediaItem: const MediaItem(
-      id: "",
-      title: "Unknown track title",
-    ),
-  );
-
-  MusicItem copyWith({
-    int? id,
-    MediaItem? mediaItem,
-    int? index,
-    Color? color,
-  }) {
-    return MusicItem(
-      id: id ?? this.id,
-      mediaItem: mediaItem ?? this.mediaItem,
-      index: index ?? this.index,
-      color: color ?? this.color,
     );
   }
 }

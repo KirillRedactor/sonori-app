@@ -1,8 +1,10 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/music_player_class.dart';
+import 'package:musicplayer_app/classes/musicitem_class.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../components/cards_widgets.dart';
@@ -181,7 +183,9 @@ class _PanelPageState extends State<PanelPage> {
                         children: [
                           Expanded(
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Modular.to.navigate('/home');
+                              },
                               child: Icon(
                                 Icons.home_outlined,
                                 size: iconSize,
@@ -201,7 +205,9 @@ class _PanelPageState extends State<PanelPage> {
                           ),
                           Expanded(
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Modular.to.navigate('/profile');
+                              },
                               child: Icon(
                                 Icons.person_outline,
                                 size: iconSize,
@@ -223,10 +229,11 @@ class _PanelPageState extends State<PanelPage> {
           ),
           // * Panel part
           PanelPartWidget(
-              widget: widget,
-              height: height,
-              stasutBarHeight: stasutBarHeight,
-              getIt: getIt),
+            widget: widget,
+            height: height,
+            stasutBarHeight: stasutBarHeight,
+            getIt: getIt,
+          ),
         ],
       ),
     );
@@ -251,243 +258,265 @@ class PanelPartWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: Tween(begin: 0.0, end: 1.0).animate(widget.ac),
-      child: Container(
+      child: SizedBox(
+        //TODO
         height: height - stasutBarHeight,
-        padding: const EdgeInsets.all(20),
+        // padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                    onPressed: () => widget.panelController.close(),
-                    style: TextButton.styleFrom(
-                      shape: const CircleBorder(),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_downward,
-                      color: Colors.white,
-                    )),
-                Column(
-                  children: [
-                    Text(
-                      "NOW PLAYING FROM",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.9),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right: 20, left: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                      onPressed: () => widget.panelController.close(),
+                      style: TextButton.styleFrom(
+                        shape: const CircleBorder(),
                       ),
-                    ),
-                    const Text(
-                      "Test playlist",
-                      style: TextStyle(
-                        fontSize: 14,
+                      child: const Icon(
+                        Icons.arrow_downward,
                         color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(
-                    Icons.menu,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            const TrackWidget(),
-            StreamBuilder<MusicItem>(
-              stream: mpc.currentPlayingStream,
-              builder: (context, snapshot) {
-                // ignore: sized_box_for_whitespace
-                return Container(
-                  height: 40,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      )),
+                  Column(
                     children: [
-                      MarqueeWidget(
-                        child: Text(
-                          (snapshot.data ?? MusicItem.empty).mediaItem.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            decoration: TextDecoration.none,
-                          ),
+                      Text(
+                        "NOW PLAYING FROM",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.9),
                         ),
                       ),
-                      MarqueeWidget(
-                        child: Text(
-                          (snapshot.data ?? MusicItem.empty).mediaItem.artist ??
-                              "Unknown artist",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            decoration: TextDecoration.none,
-                          ),
+                      const Text(
+                        "Test playlist",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
                         ),
                       ),
                     ],
                   ),
-                );
-              },
+                  TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.menu,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            StreamBuilder<DurationState>(
-              stream: mpc.durationStateStream,
-              builder: (context, snapshot) {
-                final durationState = snapshot.data;
-                final progress = durationState?.progress ?? Duration.zero;
-                final total = durationState?.total ?? Duration.zero;
-                return ProgressBar(
-                  thumbColor: Colors.white,
-                  timeLabelTextStyle: const TextStyle(color: Colors.white),
-                  thumbRadius: 7,
-                  thumbGlowRadius: 16,
-                  progressBarColor: Colors.white,
-                  baseBarColor: Colors.white.withOpacity(0.24),
-                  progress: progress,
-                  total: total,
-                  onSeek: (duration) {
-                    mpc.seek(duration);
-                  },
-                );
-              },
+            const TrackWidget(),
+            Padding(
+              padding: const EdgeInsets.only(right: 20, left: 20),
+              child: StreamBuilder<MusicItem>(
+                stream: mpc.currentPlayingStream,
+                builder: (context, snapshot) {
+                  // ignore: sized_box_for_whitespace
+                  return Container(
+                    height: 40,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        MarqueeWidget(
+                          child: Text(
+                            (snapshot.data ?? MusicItem.empty).mediaItem.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                        MarqueeWidget(
+                          child: Text(
+                            (snapshot.data ?? MusicItem.empty)
+                                    .mediaItem
+                                    .artist ??
+                                "Unknown artist",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(
-                    Icons.heart_broken_outlined,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => mpc.seekToPrevious(),
-                  style: TextButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(
-                    Icons.skip_previous,
-                    size: 45,
-                    color: Colors.white,
-                  ),
-                ),
-                StreamBuilder<bool>(
-                  stream: mpc.playingStream,
-                  builder: (context, snapshot) {
-                    return TextButton(
-                      onPressed: () {
-                        if (snapshot.data ?? false) {
-                          mpc.pause();
-                        } else {
-                          mpc.play();
-                        }
+            Padding(
+              padding: const EdgeInsets.only(right: 20, left: 20),
+              child: StreamBuilder<DurationState>(
+                stream: mpc.durationStateStream,
+                builder: (context, snapshot) {
+                  final durationState = snapshot.data;
+                  final progress = durationState?.progress ?? Duration.zero;
+                  final total = durationState?.total ?? Duration.zero;
+                  return IgnorePointer(
+                    ignoring: total == Duration.zero,
+                    child: ProgressBar(
+                      thumbColor: Colors.white,
+                      timeLabelTextStyle: const TextStyle(color: Colors.white),
+                      thumbRadius: 7,
+                      thumbGlowRadius: 16,
+                      progressBarColor: Colors.white,
+                      baseBarColor: Colors.white.withOpacity(0.24),
+                      progress: progress,
+                      total: total,
+                      onSeek: (duration) {
+                        mpc.seek(duration);
                       },
-                      style: TextButton.styleFrom(
-                        shape: const CircleBorder(),
-                      ),
-                      child: Icon(
-                        snapshot.data ?? false
-                            ? Icons.pause
-                            : Icons.play_arrow_sharp,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    );
-                  },
-                ),
-                TextButton(
-                  onPressed: () => GetIt.I.get<MusicPlayerClass>().seekToNext(),
-                  style: TextButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(
-                    Icons.skip_next,
-                    size: 45,
-                    color: Colors.white,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(
-                    Icons.favorite_outline,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+                    ),
+                  );
+                },
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                StreamBuilder<LoopMode>(
-                    stream: mpc.loopModeStream,
+            Padding(
+              padding: const EdgeInsets.only(right: 20, left: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.heart_broken_outlined,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => mpc.seekToPrevious(),
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.skip_previous,
+                      size: 45,
+                      color: Colors.white,
+                    ),
+                  ),
+                  StreamBuilder<bool>(
+                    stream: mpc.playingStream,
                     builder: (context, snapshot) {
                       return TextButton(
                         onPressed: () {
-                          switch (snapshot.data ?? LoopMode.off) {
-                            case LoopMode.off:
-                              getIt<MusicPlayerClass>()
-                                  .setLoopMode(LoopMode.one);
-                              break;
-                            case LoopMode.one:
-                              getIt<MusicPlayerClass>()
-                                  .setLoopMode(LoopMode.all);
-                              break;
-                            case LoopMode.all:
-                              getIt<MusicPlayerClass>()
-                                  .setLoopMode(LoopMode.off);
+                          if (snapshot.data ?? false) {
+                            mpc.pause();
+                          } else {
+                            mpc.play();
                           }
                         },
                         style: TextButton.styleFrom(
                           shape: const CircleBorder(),
                         ),
                         child: Icon(
-                          snapshot.data == LoopMode.off
-                              ? Icons.repeat
-                              : snapshot.data == LoopMode.one
-                                  ? Icons.repeat_one
-                                  : Icons.repeat,
-                          size: 30,
-                          color: snapshot.data == LoopMode.one ||
-                                  snapshot.data == LoopMode.all
-                              ? Colors.white
-                              : Colors.grey,
+                          snapshot.data ?? false
+                              ? Icons.pause
+                              : Icons.play_arrow_sharp,
+                          size: 60,
+                          color: Colors.white,
                         ),
                       );
-                    }),
-                StreamBuilder<bool>(
-                  stream: mpc.shuffleModeEnabledSteam,
-                  builder: (context, snapshot) {
-                    return TextButton(
-                      onPressed: () {
-                        getIt<MusicPlayerClass>()
-                            .setShuffleModeEnabled(!(snapshot.data ?? false));
-                      },
-                      style: TextButton.styleFrom(
-                        shape: const CircleBorder(),
-                      ),
-                      child: Icon(Icons.shuffle,
-                          size: 30,
-                          color: snapshot.data == true
-                              ? Colors.white
-                              : Colors.grey),
-                    );
-                  },
-                ),
-              ],
+                    },
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        GetIt.I.get<MusicPlayerClass>().seekToNext(),
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.skip_next,
+                      size: 45,
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      shape: const CircleBorder(),
+                    ),
+                    child: const Icon(
+                      Icons.favorite_outline,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20, left: 20, bottom: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StreamBuilder<LoopMode>(
+                      stream: mpc.loopModeStream,
+                      builder: (context, snapshot) {
+                        return TextButton(
+                          onPressed: () {
+                            switch (snapshot.data ?? LoopMode.off) {
+                              case LoopMode.off:
+                                getIt<MusicPlayerClass>()
+                                    .setLoopMode(LoopMode.one);
+                                break;
+                              case LoopMode.one:
+                                getIt<MusicPlayerClass>()
+                                    .setLoopMode(LoopMode.all);
+                                break;
+                              case LoopMode.all:
+                                getIt<MusicPlayerClass>()
+                                    .setLoopMode(LoopMode.off);
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            shape: const CircleBorder(),
+                          ),
+                          child: Icon(
+                            snapshot.data == LoopMode.off
+                                ? Icons.repeat
+                                : snapshot.data == LoopMode.one
+                                    ? Icons.repeat_one
+                                    : Icons.repeat,
+                            size: 30,
+                            color: snapshot.data == LoopMode.one ||
+                                    snapshot.data == LoopMode.all
+                                ? Colors.white
+                                : Colors.grey,
+                          ),
+                        );
+                      }),
+                  StreamBuilder<bool>(
+                    stream: mpc.shuffleModeEnabledSteam,
+                    builder: (context, snapshot) {
+                      return TextButton(
+                        onPressed: () {
+                          getIt<MusicPlayerClass>()
+                              .setShuffleModeEnabled(!(snapshot.data ?? false));
+                        },
+                        style: TextButton.styleFrom(
+                          shape: const CircleBorder(),
+                        ),
+                        child: Icon(Icons.shuffle,
+                            size: 30,
+                            color: snapshot.data == true
+                                ? Colors.white
+                                : Colors.grey),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),

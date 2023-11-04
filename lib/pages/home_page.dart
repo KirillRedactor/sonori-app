@@ -4,63 +4,16 @@ import "dart:async";
 import "dart:io";
 
 import "package:audio_service/audio_service.dart";
+import "package:cached_network_image/cached_network_image.dart";
+import "package:easy_localization/easy_localization.dart";
 import "package:flutter/material.dart";
+import "package:gap/gap.dart";
 import "package:get_it/get_it.dart";
 import "package:musicplayer_app/classes/music_player_class.dart";
 import 'dart:ui' as ui;
 
 import "package:musicplayer_app/components/cards_widgets.dart";
-
-MusicItem mIFirst = MusicItem(
-  id: 111111111,
-  mediaItem: MediaItem(
-    id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/t123456789.mp3?alt=media&token=9c9c9bc3-9e71-42e6-a266-f4d46395d8c7&_gl=1*f8ypit*_ga*MzMyNDEwNzEyLjE2ODUyMTAzNjI.*_ga_CW55HF8NVT*MTY4NTQ2MjMwOS4xLjEuMTY4NTQ2MjM4My4wLjAuMA..",
-    title: "8 Legged Dreams",
-    artist: "Unlike Pluto",
-    album: "No album",
-    artUri: Uri.parse(
-        "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/243b9e26190d947bfc046b6360446b2b.1000x1000x1.jpg?alt=media&token=7b901867-934c-4030-a05a-40d878916459"),
-  ),
-  color: Color.fromARGB(219, 255, 98, 0),
-);
-
-MusicItem mISecond = MusicItem(
-  id: 111111112,
-  mediaItem: MediaItem(
-    id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.mp3?alt=media&token=809d7477-d13b-4487-829f-8f96df2abf06",
-    title: "Stamp on the ground",
-    artist: "Jim Yosef, Scarlett",
-    album: "No album",
-    artUri: Uri.parse(
-        "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.png?alt=media&token=7cbad75f-f36f-400d-b498-e856bdd63efb"),
-  ),
-  color: Color.fromARGB(219, 187, 95, 49),
-);
-
-MusicItem mIThird = MusicItem(
-  id: 111111113,
-  mediaItem: MediaItem(
-    id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Jim%20Yosef%2C%20Scarlett%20-%20Battlecry.mp3?alt=media&token=f8654e61-afd1-43eb-93ec-8dc3cc5aefec",
-    title: "Battlecry (Heart of Courage)",
-    artist: "Jim Yosef, Scarlett",
-    album: "No album",
-    artUri: Uri.parse(
-        "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Scarlett.png?alt=media&token=6e279561-f3de-4e52-9441-45a2e3186afd"),
-  ),
-  color: Color.fromARGB(255, 180, 74, 141),
-);
-MusicItem mIFourth = MusicItem(
-  id: 111111114,
-  mediaItem: MediaItem(
-    id: "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Throne%20(ft.%20Neoni)%20-%20Lost%20Identities%20Remix.mp3?alt=media&token=9c3e9879-7afa-4213-82dd-0ce8ba0952b3",
-    title: "Throne(ft. Neoni) - Lost Identities Remix",
-    artist: "Rival, Neoni, Lost Identities",
-    album: "No album",
-    artUri: Uri.parse(
-        "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Throne%20(ft.%20Neoni)%20-%20Lost%20Identities%20Remix.jpg?alt=media&token=929a3c13-9a69-409a-a31c-3720200ee0e2"),
-  ),
-  color: Color.fromARGB(219, 31, 31, 37),
-);
+import "package:musicplayer_app/components/home_components.dart";
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -84,123 +37,256 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Home page",
-          style: TextStyle(
-            foreground: Paint()
-              ..shader = ui.Gradient.linear(
-                const Offset(0, 0),
-                const Offset(150, 40),
-                <Color>[
-                  Color.fromARGB(255, 253, 89, 22),
-                  // Color.fromARGB(255, 225, 13, 232),
-                  Color.fromARGB(255, 204, 52, 198),
-                ],
+      body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: <Widget>[
+          SliverAppBar(
+            title: Text(
+              "homepage.welcome_back".tr(),
+              style: TextStyle(
+                foreground: Paint()
+                  ..shader = ui.Gradient.linear(
+                    const Offset(0, 40),
+                    const Offset(200, 40),
+                    <Color>[
+                      Color.fromARGB(255, 253, 89, 22),
+                      // Color.fromARGB(255, 225, 13, 232),
+                      Color.fromARGB(255, 204, 52, 198),
+                    ],
+                  ),
+                // color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 30,
               ),
-            // color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 30,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          TextButton(
-            child: Text("Play test playlist"),
-            onPressed: () => GetIt.I<MusicPlayerClass>().updateQueue(
-              [
-                mIFourth,
-                mISecond,
-                mIThird,
-                mIFirst,
-                mIFourth,
-                mISecond,
-                mIThird,
-                mIFirst,
-                mISecond,
-                mIThird,
-                mIFourth,
-                mIFirst,
-              ],
-              playQueue: true,
             ),
+            backgroundColor: Colors.black,
           ),
-          StreamBuilder<MusicItem>(
-            stream: GetIt.I<MusicPlayerClass>().nextPlayingStream,
-            builder: (context, snapshot) {
-              return Text(
-                snapshot.data?.mediaItem.title ??
-                    MusicItem.empty.mediaItem.title,
-                style: TextStyle(color: Colors.white),
-              );
-            },
-          ),
-          StreamBuilder<MusicItem>(
-            stream: GetIt.I<MusicPlayerClass>().currentPlayingStream,
-            builder: (context, snapshot) {
-              return Text(
-                snapshot.data?.mediaItem.title ??
-                    MusicItem.empty.mediaItem.title,
-                style: TextStyle(color: Colors.white),
-              );
-            },
-          ),
-          StreamBuilder<MusicItem>(
-            stream: GetIt.I<MusicPlayerClass>().previousPlayingStream,
-            builder: (context, snapshot) {
-              return Text(
-                snapshot.data?.mediaItem.title ??
-                    MusicItem.empty.mediaItem.title,
-                style: TextStyle(color: Colors.white),
-              );
-            },
-          ),
-          if (false)
-            // ignore: dead_code
-            Stack(
-              children: [
-                Container(
-                  color: Colors.grey.shade200,
-                  height: 14,
-                ),
-                ShaderMask(
-                  shaderCallback: (Rect rect) {
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: const [
-                        Colors.transparent,
-                        Colors.black,
-                        Colors.black,
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.25, 0.75, 1.0],
-                    ).createShader(rect);
-                  },
-                  blendMode: BlendMode.dstOut,
-                  child: Container(
-                    color: Colors.grey.shade300,
-                    height: 14,
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Text(
+                    "homepage.recently_listened".tr(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
+                SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      FTHomeWidget(),
+                      Gap(10),
+                      HomeChip.standard(
+                        text: "Playlist #2",
+                        child: errorImage,
+                      ),
+                      Gap(10),
+                      HomeChip.standard(
+                        text: "Playlist #4",
+                        child: CachedNetworkImage(
+                          fit: BoxFit.fitWidth,
+                          imageUrl:
+                              "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.png?alt=media&token=7cbad75f-f36f-400d-b498-e856bdd63efb",
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey.shade400,
+                          ),
+                          errorWidget: (context, url, error) => errorImage,
+                        ),
+                      ),
+                      Gap(10),
+                      HomeChip(
+                        text: Center(
+                          child: Text(
+                            "Gaming playlist for hard games from C00l Man",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        child: CachedNetworkImage(
+                          fit: BoxFit.fitWidth,
+                          imageUrl:
+                              "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.png?alt=media&token=7cbad75f-f36f-400d-b498-e856bdd63efb",
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey.shade400,
+                          ),
+                          errorWidget: (context, url, error) => errorImage,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Text(
+                    "homepage.only_for_you".tr(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      FTCardWidget(),
+                      Gap(10),
+                      PlaylistCardWidget.standart(
+                        child: errorImage,
+                        title: "Error",
+                        description:
+                            "Playlist is not found. You can delete them. Just tap or hold.",
+                      ),
+                      Gap(10),
+                      PlaylistCardWidget(
+                        title: Text(
+                          "Playlist",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        description: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: Text(
+                            "Tracks that you liked",
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        child: CachedNetworkImage(
+                          fit: BoxFit.fitWidth,
+                          imageUrl:
+                              "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.png?alt=media&token=7cbad75f-f36f-400d-b498-e856bdd63efb",
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey.shade400,
+                          ),
+                          errorWidget: (context, url, error) => errorImage,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Text(
+                    "Musicians",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      MusicianCard.standard(
+                        child: CachedNetworkImage(
+                          fit: BoxFit.fitWidth,
+                          imageUrl:
+                              "https://firebasestorage.googleapis.com/v0/b/flutterfire-music-tests.appspot.com/o/Stamp-on-the-ground_Jim-Yosef_Scarlett.png?alt=media&token=7cbad75f-f36f-400d-b498-e856bdd63efb",
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey.shade400,
+                          ),
+                          errorWidget: (context, url, error) => errorImage,
+                        ),
+                        musicianName: "Jim Yosef Scarlet and Another cool guys",
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 102 + MediaQuery.of(context).padding.bottom),
               ],
             ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                onPressed: () => GetIt.I<MusicPlayerClass>().seekToPrevious(),
-                icon: Icon(Icons.skip_previous),
-              ),
-              IconButton(
-                onPressed: () => GetIt.I<MusicPlayerClass>().seekToNext(),
-                icon: Icon(Icons.skip_next),
-              ),
-            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FTCardWidget extends StatelessWidget {
+  const FTCardWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PlaylistCardWidget.standart(
+      title: "Favorite tracks",
+      description: "Tracks that you liked",
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: const [
+              Color.fromARGB(255, 70, 13, 161),
+              Color.fromARGB(255, 160, 29, 230),
+              Color.fromARGB(255, 233, 179, 240),
+            ],
+          ),
+        ),
+        child: Icon(
+          Icons.favorite,
+          color: Colors.white,
+          size: 100,
+        ),
+      ),
+    );
+  }
+}
+
+class FTHomeWidget extends StatelessWidget {
+  const FTHomeWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return HomeChip.standard(
+      text: "Favorite tracks",
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: const [
+              Color.fromARGB(255, 70, 13, 161),
+              Color.fromARGB(255, 160, 29, 230),
+              Color.fromARGB(255, 233, 179, 240),
+            ],
+          ),
+        ),
+        child: Icon(
+          Icons.favorite,
+          color: Colors.white,
+        ),
       ),
     );
   }

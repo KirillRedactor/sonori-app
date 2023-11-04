@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:musicplayer_app/classes/musicitem_class.dart';
 // ignore: unused_import
 import 'dart:ui' as ui;
 
@@ -185,8 +186,8 @@ class _TrackWidgetState extends State<TrackWidget> {
     double width = MediaQuery.of(context).size.width;
 
     return SizedBox(
-      height: width * 0.9,
-      width: width * 0.9,
+      height: width,
+      width: width,
       child: ShaderMask(
         shaderCallback: (Rect rect) {
           return LinearGradient(
@@ -252,18 +253,37 @@ class _TrackCardState extends State<TrackCard> {
   Widget build(BuildContext context) {
     // double width = MediaQuery.of(context).size.width;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      // padding: const EdgeInsets.all(0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: CachedNetworkImage(
-          fit: BoxFit.fitWidth,
-          imageUrl: widget.musicItem.mediaItem.artUri.toString(),
-          placeholder: (context, url) => Container(
-            color: Colors.grey.shade400,
-          ),
-          errorWidget: (context, url, error) => errorImage,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+      child: StreamBuilder<bool>(
+        stream: mpc.playingStream,
+        builder: (context, snapshot) {
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 350),
+            curve: Curves.bounceInOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0, 10),
+                  color: (snapshot.data ?? mpc.isPlaying)
+                      ? widget.musicItem.color ?? Colors.transparent
+                      : Colors.transparent,
+                  blurRadius: 20,
+                  spreadRadius: -15,
+                ),
+              ],
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: CachedNetworkImage(
+              fit: BoxFit.fitWidth,
+              imageUrl: widget.musicItem.mediaItem.artUri.toString(),
+              placeholder: (context, url) => Container(
+                color: Colors.grey.shade400,
+              ),
+              errorWidget: (context, url, error) => errorImage,
+            ),
+          );
+        },
       ),
     );
   }

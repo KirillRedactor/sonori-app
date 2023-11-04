@@ -43,10 +43,13 @@ class NavigationPageState extends State<NavigationPage>
     minSPHeight = 102 + navBarHeight;
     return Scaffold(
       body: SlidingUpPanel(
+        // stream: mpc.currentPlayingStream,
         color: Colors.black,
         controller: controller,
         maxHeight: height,
         minHeight: minSPHeight,
+        // isDraggable:
+        //     (snapshot.data ?? mpc.currentPlaying) != MusicItem.empty,
         parallaxEnabled: true,
         parallaxOffset: 0.01,
         boxShadow: const <BoxShadow>[
