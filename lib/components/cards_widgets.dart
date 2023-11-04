@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
 // ignore: unused_import
 import 'dart:ui' as ui;
@@ -634,7 +635,8 @@ class _MarqueeWidgetState extends State<MarqueeWidget> {
 
 CachedNetworkImage errorImage = CachedNetworkImage(
   imageUrl: _defoultArtUrl,
-  placeholder: (context, url) =>
-      const SizedBox(height: 80, width: 80, child: CircularProgressIndicator()),
+  placeholder: (context, url) => Container(
+    color: Colors.grey.shade400,
+  ),
   errorWidget: (context, url, error) => const Icon(Icons.error),
 );

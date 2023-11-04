@@ -4,6 +4,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 import 'package:musicplayer_app/classes/music_player_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 import 'package:musicplayer_app/classes/music_player_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -206,7 +207,7 @@ class _PanelPageState extends State<PanelPage> {
                           Expanded(
                             child: TextButton(
                               onPressed: () {
-                                Modular.to.navigate('/profile');
+                                Modular.to.navigate('/profile/US100000001');
                               },
                               child: Icon(
                                 Icons.person_outline,

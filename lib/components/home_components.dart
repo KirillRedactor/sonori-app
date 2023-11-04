@@ -90,6 +90,8 @@ class PlaylistCardWidget extends StatefulWidget {
   final Widget? description;
   final Color color;
 
+  final void Function()? onPressed, onLongPress;
+
   const PlaylistCardWidget({
     super.key,
     this.height = 180,
@@ -98,6 +100,8 @@ class PlaylistCardWidget extends StatefulWidget {
     this.title,
     this.description,
     this.color = Colors.transparent,
+    this.onPressed,
+    this.onLongPress,
   });
 
   static PlaylistCardWidget standart({
@@ -105,8 +109,12 @@ class PlaylistCardWidget extends StatefulWidget {
     String? title,
     String? description,
     Color? textColor,
+    void Function()? onPressed,
+    void Function()? onLongPress,
   }) =>
       PlaylistCardWidget(
+        onPressed: onPressed ?? () {},
+        onLongPress: onLongPress,
         title: title != null
             ? Text(
                 title,
@@ -152,8 +160,8 @@ class CardWidgetState extends State<PlaylistCardWidget> {
       height: widget.description != null ? widget.height : widget.width,
       width: widget.width,
       child: TextButton(
-        onPressed: () {},
-        onLongPress: () {},
+        onPressed: widget.onPressed ?? () {},
+        onLongPress: widget.onLongPress,
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,

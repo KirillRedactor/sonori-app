@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:get_it/get_it.dart';
+import 'package:musicplayer_app/classes/firebaseclass.dart';
+import 'package:musicplayer_app/pages/error_page.dart';
 import 'package:musicplayer_app/pages/home_page.dart';
 import 'package:musicplayer_app/pages/navigation_page.dart';
 import 'package:musicplayer_app/pages/profile_page.dart';
@@ -39,6 +41,7 @@ void main() async {
 
   setPathUrlStrategy();
   GetIt.I.registerSingleton<MusicPlayerClass>(MusicPlayerClass());
+  GetIt.I.registerSingleton<FirabaseClass>(FirabaseClass());
 
   // runApp(NewModularApp.get);
   runApp(
@@ -94,18 +97,29 @@ class MyModule extends Module {
       ChildRoute(
         '/home',
         child: (context) => const HomePage(),
-        transition: TransitionType.rightToLeft,
+        transition: TransitionType.noTransition,
       ),
       ChildRoute(
         '/profile',
-        child: (context) => const ProfilePage(),
-        transition: TransitionType.rightToLeft,
+        child: (context) => ProfilePage(),
+        transition: TransitionType.noTransition,
+      ),
+      ChildRoute(
+        '/profile/:userId',
+        child: (context) => ProfilePage(userId: r.args.params['userId']),
+        transition: TransitionType.noTransition,
       ),
       ChildRoute(
         '/settings',
         child: (context) => const SettingsPage(),
-        transition: TransitionType.rightToLeft,
+        transition: TransitionType.noTransition,
       ),
+      ChildRoute(
+        '/error',
+        child: (context) => const ErrorPage(),
+        transition: TransitionType.noTransition,
+      ),
+      WildcardRoute(child: (context) => const ErrorPage()),
     ]);
     // r.child("/home", child: (context) => const HomePage());
   }

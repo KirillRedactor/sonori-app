@@ -6,8 +6,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/audio_handler_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
 
-MusicPlayerClass get mpc => GetIt.I<MusicPlayerClass>();
-
 class MusicPlayerClass {
   final getIt = GetIt.I;
 

@@ -155,25 +155,9 @@ class _HomePageState extends State<HomePage> {
                             "Playlist is not found. You can delete them. Just tap or hold.",
                       ),
                       Gap(10),
-                      PlaylistCardWidget(
-                        title: Text(
-                          "Playlist",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        description: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Text(
-                            "Tracks that you liked",
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
+                      PlaylistCardWidget.standart(
+                        title: "Playlist",
+                        description: "Tracks that you liked",
                         child: CachedNetworkImage(
                           fit: BoxFit.fitWidth,
                           imageUrl:
