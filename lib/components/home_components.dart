@@ -1,10 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:musicplayer_app/classes/user_class.dart';
+import 'package:musicplayer_app/components/cards_widgets.dart';
 
 class MusicianCard extends StatefulWidget {
   final double height, width;
   final Widget child;
   final Widget musicianName;
   final Color color;
+  final void Function()? onPressed;
+  final void Function()? onLongPress;
 
   const MusicianCard({
     super.key,
@@ -13,11 +18,15 @@ class MusicianCard extends StatefulWidget {
     required this.child,
     required this.musicianName,
     this.color = Colors.transparent,
+    this.onPressed,
+    this.onLongPress,
   });
 
   static MusicianCard standard({
     required Widget child,
     required String musicianName,
+    void Function()? onPressed,
+    void Function()? onLongPress,
   }) =>
       MusicianCard(
         musicianName: Text(
@@ -31,7 +40,40 @@ class MusicianCard extends StatefulWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        onPressed: onPressed,
+        onLongPress: onLongPress,
         child: child,
+      );
+
+  static MusicianCard fromUserclass({
+    required UserClass userClass,
+    void Function()? onPressed,
+    void Function()? onLongPress,
+  }) =>
+      MusicianCard(
+        musicianName: Text(
+          userClass.name,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        onPressed: onPressed,
+        onLongPress: onLongPress,
+        child: userClass.avatarUri != null
+            ? CachedNetworkImage(
+                fit: BoxFit.fitWidth,
+                imageUrl: userClass.avatarUri!,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey.shade400,
+                ),
+                errorWidget: (context, url, error) => errorImage,
+              )
+            : Container(),
       );
 
   @override
@@ -50,8 +92,8 @@ class MusicianCardState extends State<MusicianCard> {
       height: widget.height,
       width: widget.width,
       child: TextButton(
-        onPressed: () {},
-        onLongPress: () {},
+        onPressed: widget.onPressed ?? () {},
+        onLongPress: widget.onPressed,
         style: TextButton.styleFrom(
           minimumSize: Size.zero,
           padding: EdgeInsets.zero,
@@ -182,26 +224,6 @@ class CardWidgetState extends State<PlaylistCardWidget> {
                     width: widget.width,
                     child: widget.child!,
                   ),
-                /*if (widget.title != null)
-                  Container(
-                    height: widget.width,
-                    width: widget.width,
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      height: widget.width / 4,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withAlpha(200),
-                            Colors.black.withAlpha(200),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ),*/
                 Container(
                   padding: const EdgeInsets.all(5),
                   height: widget.width,

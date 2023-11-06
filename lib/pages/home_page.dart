@@ -7,6 +7,7 @@ import "package:audio_service/audio_service.dart";
 import "package:cached_network_image/cached_network_image.dart";
 import "package:easy_localization/easy_localization.dart";
 import "package:flutter/material.dart";
+import "package:flutter_modular/flutter_modular.dart";
 import "package:gap/gap.dart";
 import "package:get_it/get_it.dart";
 import "package:musicplayer_app/classes/music_player_class.dart";
@@ -102,19 +103,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Gap(10),
-                      HomeChip(
-                        text: Center(
-                          child: Text(
-                            "Gaming playlist for hard games from C00l Man",
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                      HomeChip.standard(
+                        text: "Gaming playlist for hard games from C00l Man",
                         child: CachedNetworkImage(
                           fit: BoxFit.fitWidth,
                           imageUrl:
@@ -149,6 +139,7 @@ class _HomePageState extends State<HomePage> {
                       FTCardWidget(),
                       Gap(10),
                       PlaylistCardWidget.standart(
+                        onPressed: () => Modular.to.pushNamed('/error'),
                         child: errorImage,
                         title: "Error",
                         description:
@@ -156,6 +147,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Gap(10),
                       PlaylistCardWidget.standart(
+                        onPressed: () =>
+                            Modular.to.pushNamed("/playlist/PL100000000"),
                         title: "Playlist",
                         description: "Tracks that you liked",
                         child: CachedNetworkImage(
@@ -190,6 +183,8 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     children: [
                       MusicianCard.standard(
+                        onPressed: () =>
+                            Modular.to.navigate('/profile/US120000000'),
                         child: CachedNetworkImage(
                           fit: BoxFit.fitWidth,
                           imageUrl:
@@ -199,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           errorWidget: (context, url, error) => errorImage,
                         ),
-                        musicianName: "Jim Yosef Scarlet and Another cool guys",
+                        musicianName: "Jim Yosef",
                       )
                     ],
                   ),

@@ -207,7 +207,7 @@ class _PanelPageState extends State<PanelPage> {
                           Expanded(
                             child: TextButton(
                               onPressed: () {
-                                Modular.to.navigate('/profile/US100000001');
+                                Modular.to.navigate('/profile');
                               },
                               child: Icon(
                                 Icons.person_outline,

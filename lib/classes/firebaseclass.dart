@@ -27,13 +27,16 @@ class FirabaseClass {
 
   Future<UserClass> getUser(String id) async {
     if (!id.contains("US")) return UserClass.empty;
-    Future.delayed(const Duration(seconds: 10));
     for (UserClass user in listOfUsers) {
       if (user.id == id) {
         return user;
       }
     }
     return UserClass.empty;
+  }
+
+  UserClass getLocalUser() {
+    return localUser;
   }
 
   Future<MusicItem> getMusicItem(String id) async {
@@ -44,5 +47,20 @@ class FirabaseClass {
       }
     }
     return MusicItem.empty;
+  }
+
+  Future<List<MusicItem>> getListOfMusicItems(List<String> list) async {
+    Map<int, MusicItem> map = {};
+    for (MusicItem musicItem in listOfMusicItems) {
+      int id = list.indexOf(musicItem.id);
+      if (id != -1) {
+        map[id] = musicItem;
+      }
+    }
+    List<MusicItem> resList = [];
+    for (int i = 0; i < list.length; i++) {
+      resList.add(map[i]!);
+    }
+    return resList;
   }
 }
