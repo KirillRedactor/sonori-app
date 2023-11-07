@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 import 'package:musicplayer_app/classes/music_player_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
+import 'package:musicplayer_app/classes/playlist_class.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../components/cards_widgets.dart';
@@ -280,23 +281,34 @@ class PanelPartWidget extends StatelessWidget {
                         Icons.arrow_downward,
                         color: Colors.white,
                       )),
-                  Column(
-                    children: [
-                      Text(
-                        "NOW PLAYING FROM",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                      const Text(
-                        "Test playlist",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                  StreamBuilder<PlaylistClass>(
+                    stream: mpc.currentPlaylistStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data?.id != PlaylistClass.empty.id) {
+                        return Column(
+                          children: [
+                            const Text(
+                              "NOW PLAYING FROM",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              snapshot.data!.title,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                // fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
                   ),
                   TextButton(
                     onPressed: () {},
@@ -325,7 +337,7 @@ class PanelPartWidget extends StatelessWidget {
                       children: [
                         MarqueeWidget(
                           child: Text(
-                            (snapshot.data ?? MusicItem.empty).mediaItem.title,
+                            (snapshot.data ?? MusicItem.empty).title,
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.white,
@@ -335,10 +347,7 @@ class PanelPartWidget extends StatelessWidget {
                         ),
                         MarqueeWidget(
                           child: Text(
-                            (snapshot.data ?? MusicItem.empty)
-                                    .mediaItem
-                                    .artist ??
-                                "Unknown artist",
+                            (snapshot.data ?? MusicItem.empty).artist,
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.white,

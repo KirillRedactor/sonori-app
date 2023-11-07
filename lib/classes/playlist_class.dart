@@ -22,6 +22,10 @@ class PlaylistClass {
     this.artUri,
   });
 
+  int indexOf(String id) {
+    return tracks?.indexWhere((element) => element.id == id) ?? -1;
+  }
+
   static PlaylistClass get empty => PlaylistClass(
         id: "PL000000000",
         title: "Unknown playlist",

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "817729701732",
+    "project_id": "musicplayer-app-607a3",
+    "storage_bucket": "musicplayer-app-607a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817729701732:android:a334485d7b8a0b64955c71",
+        "android_client_info": {
+          "package_name": "com.exontix.music"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIY9omZvoMc1LO5N-rtly3TsMtrD6167c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

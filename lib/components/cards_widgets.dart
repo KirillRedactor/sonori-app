@@ -58,7 +58,7 @@ class _MiniTrackCardForNavigationPanelState
               children: [
                 MarqueeWidget(
                   child: Text(
-                    widget.musicItem.mediaItem.title,
+                    widget.musicItem.title,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white,
@@ -68,7 +68,7 @@ class _MiniTrackCardForNavigationPanelState
                 ),
                 MarqueeWidget(
                   child: Text(
-                    widget.musicItem.mediaItem.artist ?? "Unknown artist",
+                    widget.musicItem.artist,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white54,
@@ -267,7 +267,7 @@ class _TrackCardState extends State<TrackCard> {
                 BoxShadow(
                   offset: Offset(0, 10),
                   color: (snapshot.data ?? mpc.isPlaying)
-                      ? widget.musicItem.color ?? Colors.transparent
+                      ? widget.musicItem.color
                       : Colors.transparent,
                   blurRadius: 20,
                   spreadRadius: -15,
@@ -276,12 +276,14 @@ class _TrackCardState extends State<TrackCard> {
             ),
             clipBehavior: Clip.hardEdge,
             child: CachedNetworkImage(
-              fit: BoxFit.fitWidth,
-              imageUrl: widget.musicItem.mediaItem.artUri.toString(),
+              fit: BoxFit.cover,
+              imageUrl: widget.musicItem.mediaItem!.artUri.toString(),
               placeholder: (context, url) => Container(
                 color: Colors.grey.shade400,
               ),
-              errorWidget: (context, url, error) => errorImage,
+              errorWidget: (context, url, error) {
+                return errorImage;
+              },
             ),
           );
         },
@@ -328,14 +330,16 @@ class ImageWidget extends StatelessWidget {
       width: width * 0.8,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius ?? 0),
-        child: CachedNetworkImage(
-          fit: BoxFit.contain,
-          imageUrl: musicItem.mediaItem.artUri.toString(),
-          placeholder: (context, url) => Container(
-            color: Colors.grey.shade400,
-          ),
-          errorWidget: (context, url, error) => errorImage,
-        ),
+        child: musicItem.artUri != ""
+            ? CachedNetworkImage(
+                fit: BoxFit.contain,
+                imageUrl: musicItem.artUri.toString(),
+                placeholder: (context, url) => Container(
+                  color: Colors.grey.shade400,
+                ),
+                errorWidget: (context, url, error) => errorImage,
+              )
+            : null,
       ),
     );
   }

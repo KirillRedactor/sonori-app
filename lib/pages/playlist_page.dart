@@ -127,16 +127,14 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               icon: const Icon(Icons.share),
                             ),
                             IconButton(
-                              onPressed: () => mpc.updateQueue(
-                                  [mISecond, mIThird, mIFourth],
-                                  playQueue: true, isShuffle: true),
+                              onPressed: () => mpc.playPlaylist(playlistClass!,
+                                  playPlaylist: true, isShuffle: true),
                               icon: const Icon(Icons.shuffle),
                             ),
                             const Gap(20),
                             TextButton(
-                              onPressed: () => mpc.updateQueue(
-                                  [mISecond, mIThird, mIFourth],
-                                  playQueue: true),
+                              onPressed: () => mpc.playPlaylist(playlistClass!,
+                                  playPlaylist: true),
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 shape: const CircleBorder(),
@@ -150,18 +148,46 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 1000,
-                        child: ListView.builder(
-                          itemCount: playlistClass?.tracksId.length,
-                          itemBuilder: (context, index) {
-                            return ExoItem.fromTrackId(
-                              id: playlistClass!.tracksId[index],
-                            );
-                          },
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+                /*SliverToBoxAdapter(
+                  child: FutureBuilder(
+                    future: fc.getListOfMusicItems(playlistClass!.tracksId),
+                    builder: (context, snapshot) {
+                      print("hello ${snapshot.data}");
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: snapshot.data!
+                              .map((e) => ExoItem.trackFromClass(musicItem: e))
+                              .toList(),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
+                  ),
+                ),*/
+                SliverToBoxAdapter(
+                  child: FutureBuilder<List<MusicItem>>(
+                    future: fc.getListOfMusicItems(playlistClass!.tracksId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        playlistClass!.tracks = snapshot.data!;
+                        return Column(
+                          children: snapshot.data!
+                              .map(
+                                (e) => ExoItem.trackFromClass(
+                                  musicItem: e,
+                                  playlistClass: playlistClass,
+                                ),
+                              )
+                              .toList(),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
                   ),
                 ),
               ],

@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musicplayer_app/classes/audio_handler_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
+import 'package:musicplayer_app/classes/playlist_class.dart';
 
 class MusicPlayerClass {
   final getIt = GetIt.I;
@@ -27,6 +28,13 @@ class MusicPlayerClass {
   List<MusicItem> _queue = [];
   List<MusicItem> get getQueue => _queue;
   List<MusicItem> _musicItemList = [];
+
+  final StreamController<PlaylistClass> _currentPlaylistStreamController =
+      StreamController<PlaylistClass>.broadcast();
+  Stream<PlaylistClass> get currentPlaylistStream =>
+      _currentPlaylistStreamController.stream;
+  PlaylistClass _currentPlaylist = PlaylistClass.empty;
+  PlaylistClass get currentPlaylist => _currentPlaylist;
 
   // Current playing variables
   final StreamController<MusicItem> _currentPlayingStreamController =
@@ -279,6 +287,9 @@ class MusicPlayerClass {
 
     pause();
 
+    _currentPlaylistStreamController.add(PlaylistClass.empty);
+    _currentPlaylist = PlaylistClass.empty;
+
     if (fromItem > 0) {
       _previousPlayingStreamController.add(_queue[fromItem - 1]);
       _previousPlaying = _queue[fromItem - 1];
@@ -301,6 +312,50 @@ class MusicPlayerClass {
 
     // _playingStreamController.add(playQueue);
     playQueue ? play() : null;
+    _updateMusicItemsState();
+  }
+
+  Future<void> playPlaylist(
+    PlaylistClass newPlaylistClass, {
+    int fromItem = 0,
+    bool playPlaylist = false,
+    bool isShuffle = false,
+  }) async {
+    final newQueue = newPlaylistClass.tracks ?? [];
+    for (int i = 0; i < newQueue.length; i++) {
+      newQueue[i] = newQueue[i].copyWith(index: i);
+    }
+    _queue = [...newQueue];
+    _musicItemList = [...newQueue];
+    isShuffle ? _queue.shuffle() : null;
+
+    pause();
+
+    _currentPlaylistStreamController.add(newPlaylistClass);
+    _currentPlaylist = newPlaylistClass;
+
+    if (fromItem > 0) {
+      _previousPlayingStreamController.add(_queue[fromItem - 1]);
+      _previousPlaying = _queue[fromItem - 1];
+    } else {
+      _previousPlayingStreamController.add(MusicItem.empty);
+      _previousPlaying = MusicItem.empty;
+    }
+    _updateMediaItemZerothPlayer(
+        fromItem > 0 ? _queue[fromItem - 1] : MusicItem.empty);
+
+    _currentPlayingStreamController.add(_queue[fromItem]);
+    _currentPlaying = _queue[fromItem];
+    _updateMediaItemFirstPlayer(_queue[fromItem]);
+
+    if (fromItem != _queue.length - 1) {
+      _updateMediaItemSecondPlayer(_queue[fromItem + 1]);
+      _nextPlayingStreamController.add(_queue[fromItem + 1]);
+      _nextPlaying = _queue[fromItem + 1];
+    }
+
+    // _playingStreamController.add(playQueue);
+    playPlaylist ? play() : null;
     _updateMusicItemsState();
   }
 
@@ -641,7 +696,7 @@ class MusicPlayerClass {
     try {
       _zerothPlayerCurrentMusicItem = musicItem;
       AudioSource as = AudioSource.uri(
-        Uri.parse(musicItem.mediaItem.id),
+        Uri.parse(musicItem.uri),
         tag: musicItem.mediaItem,
       );
       final playlist = ConcatenatingAudioSource(children: [as]);
@@ -659,7 +714,7 @@ class MusicPlayerClass {
     try {
       _firstPlayerCurrentMusicItem = musicItem;
       AudioSource as = AudioSource.uri(
-        Uri.parse(musicItem.mediaItem.id),
+        Uri.parse(musicItem.uri),
         tag: musicItem.mediaItem,
       );
       final playlist = ConcatenatingAudioSource(children: [as]);
@@ -677,7 +732,7 @@ class MusicPlayerClass {
     try {
       _secondPlayerCurrentMusicItem = musicItem;
       AudioSource as = AudioSource.uri(
-        Uri.parse(musicItem.mediaItem.id),
+        Uri.parse(musicItem.uri),
         tag: musicItem.mediaItem,
       );
       final playlist = ConcatenatingAudioSource(children: [as]);

@@ -36,7 +36,10 @@ Future<AudioHandler> initAudioService() async {
 }
 
 class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
-  MediaItem _mediaItem = MusicItem.empty.mediaItem;
+  late MediaItem _mediaItem = const MediaItem(
+    id: "",
+    title: "Unknown track title",
+  );
 
   MyAudioHandler() {
     // _initAudioPlayback();
@@ -44,7 +47,7 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     _notifyAudioHandlerAboutPlaybackEvents();
 
     GetIt.I<MusicPlayerClass>().currentPlayingStream.listen((event) {
-      playMediaItem(event.mediaItem.copyWith(
+      playMediaItem(event.mediaItem!.copyWith(
           duration: GetIt.I.get<MusicPlayerClass>().durationState.total));
     });
   }
@@ -70,7 +73,7 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     // });
 
     GetIt.I<MusicPlayerClass>().currentPlayingStream.listen((event) {
-      playMediaItem(event.mediaItem.copyWith(
+      playMediaItem(event.mediaItem!.copyWith(
           duration: GetIt.I.get<MusicPlayerClass>().durationState.total));
     });
   }
@@ -218,7 +221,11 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   // ignore: unused_element
   void _initAudioPlayback() {
-    playMediaItem(GetIt.I<MusicPlayerClass>().currentPlaying.mediaItem);
+    playMediaItem(GetIt.I<MusicPlayerClass>().currentPlaying.mediaItem ??
+        const MediaItem(
+          id: "",
+          title: "Unknown track title",
+        ));
 
     bool playing = GetIt.I<MusicPlayerClass>().isPlaying;
     DurationState durationState = GetIt.I<MusicPlayerClass>().durationState;

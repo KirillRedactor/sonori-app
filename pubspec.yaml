@@ -41,9 +41,9 @@ dependencies:
   get_it: ^7.6.0
   just_audio: ^0.9.34
   audio_service: ^0.18.10
-  google_fonts: ^5.1.0
+  google_fonts: ^6.1.0
   sliding_up_panel: ^2.0.0+1
-  audio_video_progress_bar: ^1.0.1
+  audio_video_progress_bar: ^2.0.1
   audio_session: ^0.1.16
   cached_network_image: ^3.2.3
   on_audio_query: ^2.9.0
@@ -51,6 +51,11 @@ dependencies:
   gap: ^3.0.1
   easy_localization: ^3.0.3
   easy_localization_loader: ^2.0.0
+  firebase_core: ^2.21.0
+  # firebase_core_desktop: ^1.0.2
+  cloud_firestore: ^4.12.2
+  shared_preferences: ^2.2.2
+  firebase_auth: ^4.12.1
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +66,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

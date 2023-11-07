@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:musicplayer_app/classes/user_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
 import 'package:musicplayer_app/classes/playlist_class.dart';
 
 class FirabaseClass {
-  FirabaseClass();
+  late FirebaseFirestore db;
+
+  FirabaseClass() {
+    db = FirebaseFirestore.instance;
+  }
 
   Future<PlaylistClass> getPlaylist(String id) async {
     if (!id.contains("PL")) return PlaylistClass.empty;
@@ -39,28 +44,23 @@ class FirabaseClass {
     return localUser;
   }
 
-  Future<MusicItem> getMusicItem(String id) async {
-    if (!id.contains("TR")) return MusicItem.empty;
-    for (MusicItem musicItem in listOfMusicItems) {
-      if (musicItem.id == id) {
-        return musicItem;
-      }
-    }
-    return MusicItem.empty;
+  Future<void> updateMusicItem(MusicItem musicItem) async {
+    db.collection("tracks").doc(musicItem.id).set(musicItem.toJson());
   }
 
+  /*Future<MusicItem> getMusicItem(String id) async {
+    final snapshot = await db.collection("tracks").doc(id).get();
+    MusicItem mi = MusicItem.fromJson(snapshot);
+    return mi;
+  }*/
+
   Future<List<MusicItem>> getListOfMusicItems(List<String> list) async {
-    Map<int, MusicItem> map = {};
-    for (MusicItem musicItem in listOfMusicItems) {
-      int id = list.indexOf(musicItem.id);
-      if (id != -1) {
-        map[id] = musicItem;
-      }
-    }
-    List<MusicItem> resList = [];
-    for (int i = 0; i < list.length; i++) {
-      resList.add(map[i]!);
-    }
-    return resList;
+    final snapshot = await db
+        .collection("tracks")
+        .where("id", whereIn: list)
+        .get()
+        .then((value) => value.docs);
+    final lst = snapshot.map((e) => MusicItem.fromJson(e)).toList();
+    return lst;
   }
 }

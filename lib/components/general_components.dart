@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
+import 'package:musicplayer_app/classes/playlist_class.dart';
 import 'package:musicplayer_app/components/cards_widgets.dart';
 
 class ExoItem extends StatefulWidget {
   final Widget? child, title, subtitle;
+  final PlaylistClass? playlistClass;
   final void Function()? onPressed;
   final void Function()? onLongPress;
 
@@ -15,19 +17,34 @@ class ExoItem extends StatefulWidget {
     this.child,
     this.title,
     this.subtitle,
+    this.playlistClass,
     this.onPressed,
     this.onLongPress,
   });
 
   static ExoItem trackFromClass({
     required MusicItem musicItem,
+    PlaylistClass? playlistClass,
   }) =>
       ExoItem(
         onPressed: () {
-          mpc.updateQueue([musicItem], playQueue: true);
+          if (playlistClass != null) {
+            final index = playlistClass.indexOf(musicItem.id);
+            if (index != -1) {
+              mpc.playPlaylist(
+                playlistClass,
+                fromItem: index,
+                playPlaylist: true,
+              );
+            } else {
+              return;
+            }
+          } else {
+            mpc.updateQueue([musicItem], playQueue: true);
+          }
         },
         title: Text(
-          musicItem.mediaItem.title,
+          musicItem.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -35,17 +52,15 @@ class ExoItem extends StatefulWidget {
             fontSize: 16,
           ),
         ),
-        subtitle: musicItem.mediaItem.artist != null
-            ? Text(
-                musicItem.mediaItem.artist!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 14,
-                ),
-              )
-            : null,
+        subtitle: Text(
+          musicItem.artist,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+          ),
+        ),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
@@ -53,7 +68,7 @@ class ExoItem extends StatefulWidget {
           clipBehavior: Clip.hardEdge,
           child: CachedNetworkImage(
             fit: BoxFit.scaleDown,
-            imageUrl: musicItem.mediaItem.artUri.toString(),
+            imageUrl: musicItem.artUri.toString(),
             placeholder: (context, url) => Container(
               color: Colors.grey.shade400,
             ),
@@ -62,19 +77,49 @@ class ExoItem extends StatefulWidget {
         ),
       );
 
-  static FutureBuilder<MusicItem> fromTrackId({
+  static ExoItem get loading => ExoItem(
+        onPressed: () {},
+        /*title: Text(
+          musicItem.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.grey[100],
+            fontSize: 16,
+          ),
+        ),
+        subtitle: Text(
+          musicItem.artist,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 14,
+          ),
+        ),*/
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+  /*static FutureBuilder<MusicItem> fromTrackId({
     required String id,
   }) =>
       FutureBuilder(
         future: fc.getMusicItem(id),
         builder: (context, snapshot) {
+          print("hello ${snapshot.data}");
           if (snapshot.hasData) {
             return ExoItem.trackFromClass(musicItem: snapshot.data!);
           } else {
-            return const SizedBox(height: 54);
+            return ExoItem.loading;
           }
         },
-      );
+      );*/
 
   @override
   State<ExoItem> createState() => ExoItemState();
