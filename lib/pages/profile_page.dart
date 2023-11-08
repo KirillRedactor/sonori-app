@@ -4,7 +4,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:gap/gap.dart';
 import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
-import 'package:musicplayer_app/classes/user_class.dart';
+import 'package:musicplayer_app/classes/profile_class.dart';
 import 'package:musicplayer_app/components/cards_widgets.dart';
 import 'dart:math' as math;
 
@@ -23,12 +23,12 @@ class ProfilePage extends StatefulWidget {
 // enum Page { collection, tracks, albums, playlist }
 
 class _ProfilePageState extends State<ProfilePage> {
-  UserClass? userClass;
+  ProfileClass? userClass;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fc.getUser(widget.userId ?? fc.getLocalUser().id),
+      future: fc.getProfile(widget.userId ?? fc.getLocalUser().id),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Scaffold(backgroundColor: Colors.black);
@@ -61,11 +61,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       maxLines: 1,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 35,
+                        fontSize: 30,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    background: userClass?.avatarUri != null
+                    background: userClass?.avatarUri != null &&
+                            userClass?.avatarUri != ""
                         ? CachedNetworkImage(
                             fit: BoxFit.fitWidth,
                             imageUrl: userClass!.avatarUri!,
@@ -96,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      if (userClass?.id != fc.getLocalUser().id)
+                      if (snapshot.data?.id != settings.user?.id)
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 10),
@@ -147,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       //* My collection part
-                      if (userClass?.id == fc.getLocalUser().id)
+                      if (snapshot.data?.id == settings.user?.id)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

@@ -2,7 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:musicplayer_app/classes/classes_shortcuts.dart';
-import 'package:musicplayer_app/classes/user_class.dart';
+import 'package:musicplayer_app/classes/profile_class.dart';
 
 class MusicItem {
   String id;
@@ -11,7 +11,7 @@ class MusicItem {
   String? _artistId;
   String? _artistUsername;
   // ignore: unused_field
-  UserClass? _artistClass;
+  ProfileClass? _artistClass;
   MediaItem? mediaItem;
   String? artUri;
   int? index;
@@ -41,8 +41,8 @@ class MusicItem {
   }
 
   String get title => _title ?? "Unknown track";
-  Future<UserClass> get artistClass async =>
-      fc.getUser(_artistId ?? "US000000000");
+  Future<ProfileClass> get artistClass async =>
+      fc.getProfile(_artistId ?? "US000000000");
   String get artist => _artistUsername ?? "Unknown musicial";
   Color get color => Color(_color ?? Colors.white.value);
 

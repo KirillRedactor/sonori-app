@@ -4,44 +4,62 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:gap/gap.dart';
 import 'package:musicplayer_app/classes/classes_shortcuts.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegistrationPage extends StatefulWidget {
+  const RegistrationPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegistrationPage> createState() => _RegistrationPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegistrationPageState extends State<RegistrationPage> {
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
   late final TextEditingController nameController;
+
+  void Function()? onTap = () {};
+  Color buttonColor = Colors.grey.shade600;
 
   @override
   void initState() {
     emailController = TextEditingController();
     passwordController = TextEditingController();
+    nameController = TextEditingController();
     super.initState();
   }
 
-  void signUserIn() async {
+  void registration() async {
     late UserCredential userCredential;
     try {
-      userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      // await FirebaseAuth.instance.signInWithCustomToken(token)
     } on FirebaseAuthException catch (e) {
       return print(e);
     }
 
-    settings.logIn(
+    settings.registration(
       userCredential: userCredential,
       email: emailController.text,
       password: passwordController.text,
+      name: nameController.text,
     );
 
     Modular.to.navigate('/home');
+  }
+
+  void onChanged() {
+    if (emailController.text != "" &&
+        passwordController.text != "" &&
+        nameController.text != "") {
+      onTap = registration;
+      buttonColor = Colors.white;
+    } else {
+      onTap = () {};
+      buttonColor = Colors.grey.shade600;
+    }
+    setState(() {});
   }
 
   @override
@@ -61,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ).createShader(bounds),
           child: const Text(
-            "Login",
+            "Registration",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w900,
@@ -100,6 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.all(25),
                   child: TextField(
                     controller: emailController,
+                    onChanged: (string) => onChanged(),
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: "Email",
@@ -117,7 +136,27 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.all(25),
                   child: TextField(
+                    controller: nameController,
+                    onChanged: (string) => onChanged(),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: "Name",
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade400),
+                      ),
+                      fillColor: Colors.grey.shade900,
+                      filled: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(25),
+                  child: TextField(
                     controller: passwordController,
+                    onChanged: (string) => onChanged(),
                     obscureText: true,
                     enableSuggestions: false,
                     autocorrect: false,
@@ -138,17 +177,16 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.all(25),
                   child: GestureDetector(
-                    onTap: signUserIn,
+                    onTap: onTap,
                     child: Container(
                       padding: const EdgeInsets.all(25),
-                      // margin: const EdgeInsets.symmetric(horizontal: 25),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: buttonColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Center(
                         child: Text(
-                          "Sign in",
+                          "Sign up",
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -162,9 +200,9 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 0),
                   child: TextButton(
-                    onPressed: () => Modular.to.navigate("/registration"),
-                    child: Text(
-                      "Sign up",
+                    onPressed: () => Modular.to.navigate("/login"),
+                    child: const Text(
+                      "Sign in",
                       style: TextStyle(
                         // color: Colors.white,
                         fontWeight: FontWeight.w900,

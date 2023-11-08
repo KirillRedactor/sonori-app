@@ -1,4 +1,4 @@
-import 'package:musicplayer_app/classes/user_class.dart';
+import 'package:musicplayer_app/classes/profile_class.dart';
 import 'package:musicplayer_app/classes/musicitem_class.dart';
 
 class PlaylistClass {
@@ -6,9 +6,7 @@ class PlaylistClass {
   String title; // name of playlist
   String? description; // description of playlist
   List<String> tracksId; // ids of all tracks in playlist
-  List<MusicItem>? tracks; // items of all tracks in playlist
   String authorId; // id of author of this playlist
-  UserClass? author; // item of author of this playlist
   String? artUri; // link of painting of this playlist
 
   PlaylistClass({
@@ -16,14 +14,12 @@ class PlaylistClass {
     required this.title,
     this.description,
     required this.tracksId,
-    this.tracks,
     required this.authorId,
-    this.author,
     this.artUri,
   });
 
   int indexOf(String id) {
-    return tracks?.indexWhere((element) => element.id == id) ?? -1;
+    return tracksId.indexOf(id);
   }
 
   static PlaylistClass get empty => PlaylistClass(
@@ -38,9 +34,7 @@ class PlaylistClass {
     String? title,
     String? description,
     List<String>? tracksId,
-    List<MusicItem>? tracks,
     String? authorId,
-    UserClass? author,
     String? artUri,
   }) =>
       PlaylistClass(
@@ -48,9 +42,7 @@ class PlaylistClass {
         title: title ?? this.title,
         description: description ?? this.description,
         tracksId: tracksId ?? this.tracksId,
-        tracks: tracks ?? this.tracks,
         authorId: authorId ?? this.authorId,
-        author: author ?? this.author,
         artUri: artUri ?? this.artUri,
       );
 }

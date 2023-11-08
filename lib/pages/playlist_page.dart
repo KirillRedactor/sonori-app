@@ -173,7 +173,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     future: fc.getListOfMusicItems(playlistClass!.tracksId),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        playlistClass!.tracks = snapshot.data!;
+                        // playlistClass!.tracks = snapshot.data!;
                         return Column(
                           children: snapshot.data!
                               .map(

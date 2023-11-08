@@ -18,6 +18,7 @@ import 'package:musicplayer_app/pages/login_page.dart';
 import 'package:musicplayer_app/pages/navigation_page.dart';
 import 'package:musicplayer_app/pages/playlist_page.dart';
 import 'package:musicplayer_app/pages/profile_page.dart';
+import 'package:musicplayer_app/pages/registration_page.dart';
 import 'package:musicplayer_app/pages/settings_page.dart';
 import 'package:musicplayer_app/themes/light_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +107,7 @@ class AuthGuard extends RouteGuard {
   AuthGuard() : super(redirectTo: '/login');
 
   @override
-  bool canActivate(String path, ModularRoute route) {
+  Future<bool> canActivate(String path, ModularRoute route) async {
     return settings.isLogged;
   }
 }
@@ -118,6 +119,7 @@ class MyModule extends Module {
   @override
   void routes(r) {
     r.child("/login", child: (context) => const LoginPage());
+    r.child("/registration", child: (context) => const RegistrationPage());
     r.child(
       '/',
       child: (context) => const NavigationPage(),

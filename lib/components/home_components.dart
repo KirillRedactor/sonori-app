@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:musicplayer_app/classes/user_class.dart';
+import 'package:musicplayer_app/classes/profile_class.dart';
 import 'package:musicplayer_app/components/cards_widgets.dart';
 
 class MusicianCard extends StatefulWidget {
@@ -45,14 +45,14 @@ class MusicianCard extends StatefulWidget {
         child: child,
       );
 
-  static MusicianCard fromUserclass({
-    required UserClass userClass,
+  static MusicianCard fromProfileClass({
+    required ProfileClass ProfileClass,
     void Function()? onPressed,
     void Function()? onLongPress,
   }) =>
       MusicianCard(
         musicianName: Text(
-          userClass.name,
+          ProfileClass.name,
           maxLines: 2,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
@@ -64,10 +64,10 @@ class MusicianCard extends StatefulWidget {
         ),
         onPressed: onPressed,
         onLongPress: onLongPress,
-        child: userClass.avatarUri != null
+        child: ProfileClass.avatarUri != null
             ? CachedNetworkImage(
                 fit: BoxFit.fitWidth,
-                imageUrl: userClass.avatarUri!,
+                imageUrl: ProfileClass.avatarUri!,
                 placeholder: (context, url) => Container(
                   color: Colors.grey.shade400,
                 ),
